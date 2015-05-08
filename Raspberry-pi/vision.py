@@ -63,17 +63,13 @@ class vision:
             contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
             #Busqueda del contorno mas grande, si supera un tamano establecido sera considerado punto caliente
             if len(contours) > 0:
-                area_ini = cv2.contourArea(contours[0])
-                index = 0
-                for i in range(1, len(contours)):
-                    area = cv2.contourArea(contours[i])
-                    if area >= area_ini:
-                        area_ini = area
-                        index = i
-                if area_ini >= self.__tam_punto:
-                    if self.__mostrar_pantalla:
-                        cv2.drawContours(img, contours, index, (0,255,0), 3)
-                    print("Punto caliente detectado")
+                for index in range(len(contours)):
+                    area = cv2.contourArea(contours[index])
+                    if area >= self.__tam_punto:
+	                    if self.__mostrar_pantalla:
+        	                cv2.drawContours(img, contours, index, (255,0,0), -1)
+                	    print("Maleza detectada")
+			    break;
 
             #Si esta activado mostrara la imagen
             if self.__mostrar_pantalla:
@@ -86,5 +82,5 @@ class vision:
         cap.release()
         cv2.destroyAllWindows()
 
-vis = vision(1, True, False, 300)
+vis = vision(0, True, False, 800)
 vis.revision()
