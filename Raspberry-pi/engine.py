@@ -1,3 +1,7 @@
+#!/usr/bin/python
+import sys
+
+sys.path.append('/usr/local/lib/python2.7/site-packages')
 import cv2
 import vision
 import numpy as np
@@ -53,5 +57,5 @@ class engine:
         cap.release()
         cv2.destroyAllWindows()
 
-motor = engine(1, True, False)
+motor = engine(0, True, False)
 motor.control()
