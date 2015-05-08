@@ -11,16 +11,17 @@ def nothing(*arg):
         pass
 
 class engine:
-    PUNTO_CALIENTE = "<D:P>"
-    MALEZA         = "<D:M>"
-    AVANZA         = "<A>"
+
     def __init__(self, camara, mostrar_pantalla, testing_cam):
-        self.camara = camara
+        self.PUNTO_CALIENTE = "<D:P>"
+	self.MALEZA         = "<D:M>"
+        self.AVANZA         = "<A>"
+	self.camara = camara
         self.mostrar_pantalla = mostrar_pantalla
         self.testing_cam = testing_cam
         tam_punto_caliente = 1000
         tam_maleza = 1500
-        ser = serial.Serial(‘/dev/ttyAMA0’, 9600, timeout=1)
+        self.ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
         self.vis = vision.vision(tam_punto_caliente, tam_maleza, self.mostrar_pantalla)
 
     def control(self):
@@ -47,15 +48,22 @@ class engine:
             img = img[0:600, 300:500]
             tipo = self.vis.revision(img, self.testing_cam)
             try:
-                if tipo == 1
-                    ser.write(MALEZA)
+                if tipo == 1:
+		    print("Maleza")
+                    self.ser.write(self.MALEZA)
                 else:
-                    if tipo == 2
-                        ser.write(PUNTO_CALIENTE)
-                    else:
-                        ser.write(AVANZA)
+                    if tipo == 2:
+                        print("Punto Caliente")
+                        self.ser.write(self.PUNTO_CALIENTE)
+                    #else:
+			#print("Avanza")
+                        #self.ser.write(self.AVANZA)
             except serial.SerialException:
-            continue
+	       continue
+	    response = self.ser.readline()
+	    if len(response) > 0:
+	    	print response
+
             if self.mostrar_pantalla:
                 cv2.rectangle(img,(0,200),(200,400),(0,255,0),3)
                 cv2.imshow('Real', img)
@@ -67,5 +75,5 @@ class engine:
         cap.release()
         cv2.destroyAllWindows()
 
-motor = engine(0, False, False)
+motor = engine(0, True, False)
 motor.control()
