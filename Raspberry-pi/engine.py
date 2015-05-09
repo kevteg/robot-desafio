@@ -54,13 +54,12 @@ MALEZA                 = "<D:M>"
 AVANZA                 = "<A>"
 ult_men                = ''
 ser 	               = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
-tiempo_sin_men	       = 3 #Intervalo en que no se envia mensaje
-tiempo_revision        = 1 #Tiempo que dura la revisión
-cont_evento            = -1 #Sí el evento se detecta 10 veces se envia
+tiempo_sin_men	       = 10 #Intervalo en que no se envia mensaje
+tiempo_revision        = 2 #Tiempo que dura la revision
+cont_evento            = -1 #Si el evento se detecta 10 veces se envia
 cont_maleza            = 0
-cont_punt_c            = 0
-count                  = 0
-t_ini                  = time.time()
+cont_punto_c            = 0
+cont                   = 0
 
 def captura():
     global img, cap, terminated
@@ -141,7 +140,8 @@ def proceso():
                     tipo = 0
 
 def serial_listener():
-    global ult_men, tiempo
+    global ult_men, tiempo, cont_maleza, cont_punto_c, cont
+    t_ini = time.time()
     while True:
         if terminated:
             break
@@ -149,27 +149,30 @@ def serial_listener():
         t_act = time.time()
 
         if tipo == 1:
-            cont_maleza++
+            cont_maleza += 1
         elif tipo == 2:
-            cont_punto_c++
+            cont_punto_c += 1
         else:
-            count++
-        if t_act - t_ini > tiempo_revision and
-            t_ini = time.time()
-            if ult_men != MALEZA or ult_men != PUNTO_CALIENTE:
-                try:
-                    if 100*cont_maleza/(count + cont_punto_c + cont_maleza) >= 70 and cont_maleza > cont_punto_c:
-                            tiempo = time.time()
-                            ser.write(MALEZA)
-                    elif 100*cont_punto_c/(count + cont_punto_c + cont_maleza) >= 70 and cont_punto_c > cont_maleza:
-                            tiempo = time.time()
-                            ser.write(PUNTO_CALIENTE)
-
-                except serial.SerialException:
+            cont += 1
+	print 	(t_act - t_ini)
+        if t_act - t_ini > tiempo_revision:	
+             t_ini = time.time()
+      	     try:
+		 print "Maleza: ", cont_maleza
+		 print "Punto caliente: ", cont_punto_c
+	         if 100*cont_maleza/(cont + cont_punto_c + cont_maleza) >= 70:
+		     if ult_men != MALEZA:
+	                 tiempo = time.time()
+	                 ser.write(MALEZA)
+	         elif 100*cont_punto_c/(cont + cont_punto_c + cont_maleza) >= 70:
+		     if ult_men != PUNTO_CALIENTE:
+	                 tiempo = time.time()
+	                 ser.write(PUNTO_CALIENTE)
+             except serial.SerialException:
                        continue
-        cont_maleza = 0
-        cont_punto_c = 0
-        count        = 0
+             cont_maleza  = 0
+             cont_punto_c = 0
+             cont        = 0
 
         if ult_men != '' and (time.time() - tiempo) > tiempo_sin_men:
             ult_men = ''
