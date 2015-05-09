@@ -47,11 +47,15 @@ upper_punto_caliente   = np.array([punto_caliente[H][max], punto_caliente[S][max
 
 testing                = False
 tipo                   = 0
-tim                    = 1/30
-PUNTO_CALIENTE    = "<D:P>"
-MALEZA            = "<D:M>"
-AVANZA            = "<A>"
-ult_men           = ''
+tim                    = 1/30 #tiempo de espera en while True:
+tiempo 		       = 0 #tiempo en el que se hace envio de info a ard
+PUNTO_CALIENTE         = "<D:P>"
+MALEZA                 = "<D:M>"
+AVANZA                 = "<A>"
+ult_men                = ''
+ser 	               = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
+tiempo_sin_men	       = 3
+
 def captura():
     global img, cap, terminated
     if mostrar_pantalla:
@@ -131,7 +135,7 @@ def proceso():
                     tipo = 0
 
 def serial_listener():
-
+    global ult_men, tiempo	
     while True:
         time.sleep(tim)
         if terminated:
@@ -154,17 +158,17 @@ def serial_listener():
         if ult_men != '' and (time.time() - tiempo) > tiempo_sin_men:
             ult_men = ''
 
-        response = self.ser.readline()
-	    if len(response) > 0:
+        response = ser.readline()
+	if len(response) > 0:
             ult_men = response
-	    	print "Arduino dice: ", response
+	    print "Arduino dice: ", response
 
 
 hilo_captura = Thread( target=captura)
 hilo_proceso = Thread( target=proceso)
-#hilo_serial  = Thread( target=serial_listener)
+hilo_serial  = Thread( target=serial_listener)
 
 
 hilo_captura.start()
 hilo_proceso.start()
-#hilo_serial.start()
+hilo_serial.start()
