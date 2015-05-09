@@ -16,7 +16,7 @@ terminated             = False
 tam_punto_caliente     = 1000
 tam_maleza             = 1500
 tam_defecto            = 1000
-mostrar_pantalla       = True
+mostrar_pantalla       = False
 H                      = 0;
 S                      = 1;
 V                      = 2;
@@ -48,7 +48,7 @@ upper_punto_caliente   = np.array([punto_caliente[H][max], punto_caliente[S][max
 testing                = False
 tipo                   = 0
 tim                    = 1/30 #tiempo de espera en while True:
-tiempo 		           = 0 #tiempo en el que se hace envio de info a ard
+tiempo 		       = 0 #tiempo en el que se hace envio de info a ard
 PUNTO_CALIENTE         = "<D:P>"
 MALEZA                 = "<D:M>"
 AVANZA                 = "<A>"
@@ -58,7 +58,7 @@ tiempo_sin_men	       = 10 #Intervalo en que no se envia mensaje
 tiempo_revision        = 2 #Tiempo que dura la revision
 cont_evento            = -1 #Si el evento se detecta 10 veces se envia
 cont_maleza            = 0
-cont_punto_c            = 0
+cont_punto_c           = 0
 cont                   = 0
 
 def captura():
@@ -154,18 +154,17 @@ def serial_listener():
             cont_punto_c += 1
         else:
             cont += 1
-	print 	(t_act - t_ini)
         if t_act - t_ini > tiempo_revision:	
              t_ini = time.time()
       	     try:
-		 print "Maleza: ", cont_maleza
-		 print "Punto caliente: ", cont_punto_c
 	         if 100*cont_maleza/(cont + cont_punto_c + cont_maleza) >= 70:
 		     if ult_men != MALEZA:
+			 print "Maleza detectada"
 	                 tiempo = time.time()
 	                 ser.write(MALEZA)
 	         elif 100*cont_punto_c/(cont + cont_punto_c + cont_maleza) >= 70:
 		     if ult_men != PUNTO_CALIENTE:
+			 print "Punto caliente detectado"
 	                 tiempo = time.time()
 	                 ser.write(PUNTO_CALIENTE)
              except serial.SerialException:
