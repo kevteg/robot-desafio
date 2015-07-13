@@ -4,17 +4,13 @@ import sys
 def nothing(*arg):
         pass
 
-
 class vision:
 
-    def __init__(self, camara, mostrar_pantalla, testing):
-        self.__camara = camara
-        self.__mostrar_pantalla = mostrar_pantalla
-        self.__punto_caliente = False
-        self.__testing = testing
-        self.__tam_punto_caliente = 1000
-        self.__tam_maleza = 2500
-        self.tam_defecto = 1000
+    def __init__(self, tam_punto_caliente, tam_maleza, mostrar_pantalla):
+        self.__tam_punto_caliente = tam_punto_caliente
+        self.__tam_maleza = tam_maleza
+        self.__tam_defecto = 1000
+        self.__mostrar_pantalla = mostrar_pantalla #Para pintar el output
         self.H = 0;
         self.S = 1;
         self.V = 2;
@@ -43,55 +39,29 @@ class vision:
         self.lower_punto_caliente = np.array([self.punto_caliente[self.H][self.min], self.punto_caliente[self.S][self.min], self.punto_caliente[self.V][self.min]])
         self.upper_punto_caliente = np.array([self.punto_caliente[self.H][self.max], self.punto_caliente[self.S][self.max], self.punto_caliente[self.V][self.max]])
 
-    def revision(self):
-        if self.__mostrar_pantalla:
-            cv2.namedWindow('Real')
-            cv2.namedWindow('Procesada')
-        cap = cv2.VideoCapture(self.__camara);
+    def revision(self, img, testing):
+        retorno = 0 #Significa que no detecto nada en ese momento
+        if testing:
+            H_min = cv2.getTrackbarPos('H-min','Real')
+            S_min = cv2.getTrackbarPos('S-min','Real')
+            V_min = cv2.getTrackbarPos('V-min','Real')
+            lower = np.array([H_min, S_min, V_min])
 
-        if self.__testing:
-            cv2.createTrackbar('H-min','Real',0,255, nothing)
-            cv2.createTrackbar('S-min','Real',0,255, nothing)
-            cv2.createTrackbar('V-min','Real',0,255, nothing)
-
-            cv2.createTrackbar('H-max','Real',0,255, nothing)
-            cv2.createTrackbar('S-max','Real',0,255, nothing)
-            cv2.createTrackbar('V-max','Real',0,255, nothing)
-        while True:
-            ret, img = cap.read()
-            img = img[0:600, 300:500]
-            if self.__testing:
-                H_min = cv2.getTrackbarPos('H-min','Real')
-                S_min = cv2.getTrackbarPos('S-min','Real')
-                V_min = cv2.getTrackbarPos('V-min','Real')
-                lower = np.array([H_min, S_min, V_min])
-
-                H_max = cv2.getTrackbarPos('H-max','Real')
-                S_max = cv2.getTrackbarPos('S-max','Real')
-                V_max = cv2.getTrackbarPos('V-max','Real')
-                upper = np.array([H_max, S_max, V_max])
-                if(self.deteccion(lower, upper, self.tam_defecto, img)):
-                    print("Objeto detectado")
+            H_max = cv2.getTrackbarPos('H-max','Real')
+            S_max = cv2.getTrackbarPos('S-max','Real')
+            V_max = cv2.getTrackbarPos('V-max','Real')
+            upper = np.array([H_max, S_max, V_max])
+            if(self.deteccion(lower, upper, self.__tam_defecto, img)):
+                retorno = 3
+        else:
+            maleza_detectada = self.deteccion(self.lower_maleza, self.upper_maleza, self.__tam_maleza, img)
+            if maleza_detectada:
+                retorno = 1
             else:
-                maleza_detectada = self.deteccion(self.lower_maleza, self.upper_maleza, self.__tam_maleza, img)
-                if maleza_detectada:
-                    print("Maleza detectada")
-                else:
-                    punto_caliente_detectado = self.deteccion(self.lower_punto_caliente, self.upper_punto_caliente, self.__tam_punto_caliente, img)
-                    if punto_caliente_detectado:
-                        print("Punto caliente detectado")
-
-            #Si esta activado mostrara la imagen
-            if self.__mostrar_pantalla:
-                cv2.rectangle(img,(0,200),(200,400),(0,255,0),3)
-                cv2.imshow('Real', img)
-                cv2.imshow('Procesada', self.output)
-
-            ch = cv2.waitKey(5)
-            if ch == 27:
-                break
-        cap.release()
-        cv2.destroyAllWindows()
+                punto_caliente_detectado = self.deteccion(self.lower_punto_caliente, self.upper_punto_caliente, self.__tam_punto_caliente, img)
+                if punto_caliente_detectado:
+                    retorno = 2
+        return retorno
 
     def deteccion(self, lower, upper, tam_max_area, img):
         #Analisis de la imagen
@@ -116,8 +86,3 @@ class vision:
                         cv2.drawContours(img[200:400, 0:200], contours, index, (255,0,0), -1)
                     return True
         return False
-
-
-
-vis = vision(1, True, True)
-vis.revision()
