@@ -23,7 +23,7 @@ class vision:
         self.maleza[self.H][self.max] = 100;
         self.maleza[self.S][self.min] = 120;
         self.maleza[self.S][self.max] = 255;
-        self.maleza[self.V][self.min] = 100;
+        self.maleza[self.V][self.min] = 50;
         self.maleza[self.V][self.max] = 255;
         #Datos de punto caliente
         self.punto_caliente[self.H][self.min] = 0;
