@@ -7,7 +7,7 @@ promedio_distancia(max_distan_us){
     *Motor avance
     *Motor de limpieza
     *Sensor ultrasonido (Ya se llama arriba)
-    *Pantalla HOLA
+    *Pantalla HOLA HOLA
     */
     /*Configuraciones iniciales de los leds*/
     this->led_maleza = led_maleza;
