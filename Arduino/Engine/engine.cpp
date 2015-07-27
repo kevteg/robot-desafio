@@ -7,7 +7,11 @@ promedio_distancia(max_distan_us){
     *Motor avance
     *Motor de limpieza
     *Sensor ultrasonido (Ya se llama arriba)
+<<<<<<< HEAD
     *Pantalla HOLA HOLA
+=======
+    *Pantalla HOLA Hola
+>>>>>>> upstream/master
     */
     /*Configuraciones iniciales de los leds*/
     this->led_maleza = led_maleza;
@@ -38,7 +42,7 @@ void robot::engine::run(){
   switch(estado_robot){
     case e_avanzar:
       escuchar();
-      if(distancia_al_suelo > MUY_CERCA)
+      if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, MALEZA);
     break;
     case e_detener:
