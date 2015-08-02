@@ -129,20 +129,23 @@ void robot::engine::limpiar_maleza(){
   /*
   El activar o desactivar el motor de limpieza se hará en run
   */
+  motor_limpieza.run(FORWARD);
+  delay(5000);
 }
 
 void robot::engine::detener(){
  //distancia_recorrida = nueva_distancia
- /*Detener motor de avance
- motor_principal.detener()*/
+ /*Detener motor de avance */
+ motor_principal.run(RELEASE);
 }
 
 void robot::engine::avanzar(){
   //Se reinicia ésta variable porque si era mayor a cero
   //es porque estaba limpiando
   limpieza = 0;
-  /*Arrancar motor de avance
-  motor_principal.avanzar()*/
+  /* Arrancar motor de avance */
+  motor_principal.run(FORWARD);
+  delay(1000);
 }
 
 void robot::engine::escuchar(){
