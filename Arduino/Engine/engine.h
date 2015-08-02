@@ -57,6 +57,8 @@ namespace robot{
       int distancia_recorrida;        //Distancia desde el origen
       int tiempo_detenido;            //Tiempo por el cual estará detenido
       LiquidCrystal lcd(3,4,5,9,10,11);
+      AF_DCMotor motor_principal(3,MOTOR12_64KHZ);
+      AF_DCMotor motor_limpieza(4,MOTOR12_64KHZ);
     protected:
       /*Protegidos para que la misma clase pueda tener métodos que retornen el tipo*/
       enum estado_r{
