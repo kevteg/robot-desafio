@@ -7,6 +7,7 @@
 #ifndef ROBOT_ENGINE_H_
 #define ROBOT_ENGINE_H_
 /*Movilidad*/
+#include <AFMotor.h>
 /**La clase de movilidad debe adaptarse al motor que tenga
 * Habrán dos instancias:
 *    Una para el motor de avance y otro para el motor de limpieza
@@ -16,7 +17,7 @@
   #include <control_sensor.h>
   #include <newping_control_sensor.h>
   /*Pantalla*/
-
+  #include <LiquidCrystal.h>
   /*Auxiliares*/
   #include <promedio.h>
 /*Definiciones*/
@@ -30,6 +31,7 @@
 #define max_limpieza              3    //Máxima cantidad que se limpiara
 #define LED_MALEZA                0    //Posición cero de vector de leds será el led maleza
 #define LED_PUNTO_CALIENTE        1    //Posición uno de vector de leds será el led de punto caliente
+/* */
 /*Estas variables se usan para enviar mensajes a la raspberry pi y para manejor interno*/
 #define LIMPIAR                   'L'  //Limpiar en el protócolo
 #define AVANZAR                   'A'  //Evadir en el protócolo
@@ -54,6 +56,7 @@ namespace robot{
                                       //Debe reiniciarse cada vez que se llega al máximo de número de limpieza
       int distancia_recorrida;        //Distancia desde el origen
       int tiempo_detenido;            //Tiempo por el cual estará detenido
+      LiquidCrystal lcd(3,4,5,9,10,11);
     protected:
       /*Protegidos para que la misma clase pueda tener métodos que retornen el tipo*/
       enum estado_r{
