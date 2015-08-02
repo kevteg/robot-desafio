@@ -101,7 +101,10 @@ void robot::engine::cambiarEstado(estado_r estado, char parametro){
   }
 }
 void robot::engine::mostrarPantalla(char razon, int distancia){
-
+  lcd.setCursor(0,0);//primera linea
+  lcd.print(razon);
+  lcd.setCursor(0,2);//segunda linea
+  lcd.print(distancia);
 }
 robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
   estado_r est;
