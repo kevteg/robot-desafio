@@ -1,14 +1,22 @@
 #include "engine.h"
 
-robot::engine::engine(int pin_motor_limpieza, int pin_motor_avance, int velocidad_motor_avance, int velocidad_motor_limpieza, int trigger_pin, int echo_pin, int max_distan_us, int led_maleza, int led_punto_caliente) :
-sensor_ultra(trigger_pin, echo_pin, max_distan_us),
-promedio_distancia(max_distan_us){
+robot::engine::engine(int pin_motor_limpieza, int pin_dir_motor_avance,
+                      int steps_per_round,  int pin_step_motor_avance,
+                      int velocidad_motor_avance, int velocidad_motor_limpieza,
+                      int trigger_pin, int echo_pin,
+                      int max_distan_us, int led_maleza, int led_punto_caliente) :
+                      sensor_ultra(trigger_pin, echo_pin, max_distan_us),
+                      promedio_distancia(max_distan_us){
   /**Aquí se deben llamar directamente a los constructores de:
     *Motor avance
     *Motor de limpieza
-    *Sensor ultrasonido (Ya se llama arriba)
+    *Sensor ultrasonido (Ya se llama arriba)}
     *Pantalla
     */
+    motores                 = new motor[n_motores];
+    motores[MOTOR_LIMPIEZA] = motor_adafruit(pin_motor_limpieza);
+    motores[MOTOR_AVANCE]   = motor_step(steps_per_round, pin_step_motor_avance, pin_dir_motor_avance);
+
     /*Configuraciones iniciales de los leds*/
     this->led_maleza = led_maleza;
     this->led_punto_caliente = led_punto_caliente;
@@ -101,10 +109,10 @@ void robot::engine::cambiarEstado(estado_r estado, char parametro){
   }
 }
 void robot::engine::mostrarPantalla(char razon, int distancia){
-  lcd.setCursor(0,0);//primera linea
+/*  lcd.setCursor(0,0);//primera linea
   lcd.print(razon);
   lcd.setCursor(0,2);//segunda linea
-  lcd.print(distancia);
+  lcd.print(distancia);*/
 }
 robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
   estado_r est;
@@ -129,14 +137,14 @@ void robot::engine::limpiar_maleza(){
   /*
   El activar o desactivar el motor de limpieza se hará en run
   */
-  motor_limpieza.run(FORWARD);
-  delay(5000);
+  //motor_limpieza.run(FORWARD);
+  
 }
 
 void robot::engine::detener(){
  //distancia_recorrida = nueva_distancia
  /*Detener motor de avance */
- motor_principal.run(RELEASE);
+
 }
 
 void robot::engine::avanzar(){
@@ -144,8 +152,8 @@ void robot::engine::avanzar(){
   //es porque estaba limpiando
   limpieza = 0;
   /* Arrancar motor de avance */
-  motor_principal.run(FORWARD);
-  delay(1000);
+
+  //delay(1000);
 }
 
 void robot::engine::escuchar(){

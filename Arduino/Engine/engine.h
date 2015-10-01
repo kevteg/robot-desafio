@@ -6,20 +6,25 @@
 
 #ifndef ROBOT_ENGINE_H_
 #define ROBOT_ENGINE_H_
-/*Movilidad*/
+
+
+#include "motor.h"
+#include "motor_step.h"
 #include <AFMotor.h>
+#include "motor_adafruit.h"
 /**La clase de movilidad debe adaptarse al motor que tenga
 * Habrán dos instancias:
 *    Una para el motor de avance y otro para el motor de limpieza
 */
   /*Sensor ultrasonido*/
   #include <NewPing.h>
-  #include <control_sensor.h>
+
+  #include "control_sensor.h"
   #include <newping_control_sensor.h>
   /*Pantalla*/
-  #include <LiquidCrystal.h>
+//  #include <LiquidCrystal.h>
   /*Auxiliares*/
-  #include <promedio.h>
+  #include "promedio.h"
 /*Definiciones*/
 #define MUY_CERCA                 20   //Si se supera esta distancia es maleza
 #define max_distancia_ultrasonido 100  //Máxima distancia por defecto del ultrasonido en cm
@@ -42,6 +47,9 @@
 #define SEPARADOR                 ':'  //Separador del protócolo
 #define DELIMITADOR_I             '<'  //Delimitador inicial del protócolo
 #define DELIMITADOR_F             '>'  //Delimitador inicial del protócolo
+#define n_motores                  2   //Número de motores
+#define MOTOR_LIMPIEZA             0   //Posición del motor de limpieza en el vector de motores
+#define MOTOR_AVANCE               1   //Posición del motor de avance en el vector de motores
 namespace robot{
     class engine{
 		private:
@@ -49,16 +57,17 @@ namespace robot{
 			promedioDinamico <int, 3> promedio_distancia;
       int led_maleza;
       int led_punto_caliente;
-      bool *_led_encendido;            //Variable que indica si esta o no un led encendido
-			unsigned long tiempo_inicio;    //Tiempo de inicio para verificar las rutinas
-      String comando;                 //Comandos que llegan al robot
-      int limpieza;                   //Variable que cuenta el número de veces que se ha limpiado
-                                      //Debe reiniciarse cada vez que se llega al máximo de número de limpieza
-      int distancia_recorrida;        //Distancia desde el origen
-      int tiempo_detenido;            //Tiempo por el cual estará detenido
-      LiquidCrystal lcd(3,4,5,9,10,11);
-      AF_DCMotor motor_principal(3,MOTOR12_64KHZ);
-      AF_DCMotor motor_limpieza(4,MOTOR12_64KHZ);
+      bool *_led_encendido;                   //Variable que indica si esta o no un led encendido
+			unsigned long tiempo_inicio;            //Tiempo de inicio para verificar las rutinas
+      String comando;                         //Comandos que llegan al robot
+      int limpieza;                           //Variable que cuenta el número de veces que se ha limpiado
+                                              //Debe reiniciarse cada vez que se llega al máximo de número de limpieza
+      int distancia_recorrida;                //Distancia desde el origen
+      int tiempo_detenido;                    //Tiempo por el cual estará detenido
+
+      motor* motores;         //Motores del robot
+      //LiquidCrystal lcd(3,4,5,9,10,11);
+
     protected:
       /*Protegidos para que la misma clase pueda tener métodos que retornen el tipo*/
       enum estado_r{
@@ -71,7 +80,10 @@ namespace robot{
 			/**
 			 * @brief Primer constructor de la clase.
 			 * @param pin_motor_limpieza: Puerto a conectar el motor del método de limpieza
-			 *		  pin_motor_avance: Puerto a conectar el motor de avance
+       *      pin_motor_limpieza: Pin en la shield del motor de limpieza
+			 *		  pin_dir_motor_avance: pin de dirección del motor de avance
+       *      steps_per_round:      Steps por vuelta del motor de avance
+       *      pin_step_motor_avance: Pin de step del motor de avance
 			 *		  velocidad_motor_avance: Velocidad de los motores de avance
        *      velocidad_motor_limpieza: Velocidad de los motores de limpieza
 			 *  	  trigger_pin: Puerto trigger del sensor de ultrasonido
@@ -80,7 +92,11 @@ namespace robot{
 			 *		  pin_sir1: Pin del sensor infrarojo 1
 			 *      pin_sir2: Pin del sensor infrarojo 2
 			 */
-			engine(int pin_motor_limpieza, int pin_motor_avance, int velocidad_motor_avance, int velocidad_motor_limpieza, int trigger_pin, int echo_pin, int max_distan_us, int led_maleza, int led_punto_caliente);
+			engine(int pin_motor_limpieza, int pin_dir_motor_avance,
+             int steps_per_round,  int pin_step_motor_avance,
+             int velocidad_motor_avance, int velocidad_motor_limpieza,
+             int trigger_pin, int echo_pin, int max_distan_us,
+            int led_maleza, int led_punto_caliente);
 
       /**
       * @brief Interpretar los comandos que se reciben para cambiar el estado del robot
