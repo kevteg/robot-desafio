@@ -33,9 +33,9 @@ engine Robot(_pin_motor_limpieza, _pin_dir_motor_avance, _steps_per_round, _pin_
             _led_maleza, _led_punto_caliente);
 
 void setup() {
-  //Robot.inicializar();
+  Robot.inicializar();
 }
 
 void loop() {
-  //Robot.run();
+  Robot.run();
 }

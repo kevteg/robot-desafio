@@ -50,22 +50,26 @@
 #define n_motores                  2   //Número de motores
 #define MOTOR_LIMPIEZA             0   //Posición del motor de limpieza en el vector de motores
 #define MOTOR_AVANCE               1   //Posición del motor de avance en el vector de motores
+#define velocidad_0                0   //Velocidad cero de avance
 namespace robot{
     class engine{
 		private:
-			sensorUltra sensor_ultra;
+			sensorUltra               sensor_ultra;
 			promedioDinamico <int, 3> promedio_distancia;
-      int led_maleza;
-      int led_punto_caliente;
-      bool *_led_encendido;                   //Variable que indica si esta o no un led encendido
-			unsigned long tiempo_inicio;            //Tiempo de inicio para verificar las rutinas
-      String comando;                         //Comandos que llegan al robot
-      int limpieza;                           //Variable que cuenta el número de veces que se ha limpiado
-                                              //Debe reiniciarse cada vez que se llega al máximo de número de limpieza
-      int distancia_recorrida;                //Distancia desde el origen
-      int tiempo_detenido;                    //Tiempo por el cual estará detenido
+      int                       led_maleza;
+      int                       led_punto_caliente;
+      bool                      *_led_encendido;                    //Variable que indica si esta o no un led encendido
+			unsigned long             tiempo_inicio;                      //Tiempo de inicio para verificar las rutinas
+      String                    comando;                            //Comandos que llegan al robot
+      int                       limpieza;                           //Variable que cuenta el número de veces que se ha limpiado
+                                                                    //Debe reiniciarse cada vez que se llega al máximo de número de limpieza
+      int                       distancia_recorrida;                //Distancia desde el origen
+      int                       tiempo_detenido;                    //Tiempo por el cual estará detenido
+      int                       velocidad_motor_avance;
+      int                       velocidad_motor_limpieza;
+      bool                      avanzando;
+      motor* motores;                           //Motores del robot
 
-      motor* motores;         //Motores del robot
       //LiquidCrystal lcd(3,4,5,9,10,11);
 
     protected:
@@ -75,7 +79,14 @@ namespace robot{
               e_detener,
               e_avanzar
               };
-      estado_r estado_robot; //El estado en el que iniciará por defecto debería ser detenido hasta que la Raspberry pi indique lo contrario
+      enum parametro_r{
+              e_inicio_salida,
+              e_maleza,
+              e_punto_caliente,
+              e_none
+              };
+      parametro_r parametro_robot; //Parámetro de robot (Para conocer porque está defenido)
+      estado_r    estado_robot; //El estado en el que iniciará por defecto debería ser detenido hasta que la Raspberry pi indique lo contrario
 		public:
 			/**
 			 * @brief Primer constructor de la clase.
@@ -109,13 +120,21 @@ namespace robot{
       *        parámetro: parametro de la rutina (Para detenerse)
       * @return true si es una rutina correcta
       */
-      void cambiarEstado(estado_r estado, char parametro);
+      void cambiarEstado(estado_r estado, parametro_r parametro);
+      void cambiarEstado(estado_r estado);
       /**
       * @brief Conversor de estado en char que se recibe por comando a estado_r interno
       * @param estado: nueva rutina
       * @return mismo estado pero en formato interno
       */
-      robot::engine::estado_r conversorCharEstado(char estado);
+      robot::engine::parametro_r conversorCharEstado(char estado);
+      /**
+      * @brief Conversor de parametro en char que se recibe por comando a parametro_r interno
+      * @param estado: nueva rutina
+      * @return mismo parametro pero en formato interno
+      */
+      robot::engine::estado_r    conversorCharParametro(char estado);
+
       /**
 			 * @brief Rutina de limpieza
        * Detiene el robot y activa el motor de limpieza durante el tiempo designado por variable estátiva max_limpieza
@@ -154,7 +173,7 @@ namespace robot{
       * @brief Mostrar información por pantalla
       * @param mensaje: Lo que se debe mostrar, la idea es que sea un mensaje
       */
-      void mostrarPantalla(char razon, int distancia);
+      void mostrarPantalla(parametro_r parametro, int distancia);
       /**
       * @brief actualizar el estado del robot según la lectura del sensor de ultrasonido o según lo que reciba por el xBee
       * 		  debe ser llamado repetidamente
