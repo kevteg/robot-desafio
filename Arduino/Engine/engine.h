@@ -68,7 +68,7 @@ namespace robot{
       int                       velocidad_motor_avance;
       int                       velocidad_motor_limpieza;
       bool                      avanzando;
-      motor* motores;                           //Motores del robot
+      motor*                    motores;                           //Motores del robot
 
       //LiquidCrystal lcd(3,4,5,9,10,11);
 

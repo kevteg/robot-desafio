@@ -59,10 +59,12 @@ void robot::engine::run(){
     case e_detener:
     case e_limpiar://Revisar <---
       /*Sólo va a esperar un tiempo si está detenido por maleza o punto caliente*/
-      tiempo_actual = millis();
-      tiempo_transcurrido = tiempo_actual - tiempo_inicio;
-      if(tiempo_transcurrido >= tiempo_detenido)
-          cambiarEstado(e_avanzar);
+      if(parametro_robot != e_inicio_salida){
+        tiempo_actual = millis();
+        tiempo_transcurrido = tiempo_actual - tiempo_inicio;
+        if(tiempo_transcurrido >= tiempo_detenido)
+            cambiarEstado(e_avanzar);
+      }
     break;
   }
 
