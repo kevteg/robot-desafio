@@ -18,13 +18,13 @@
 					 *  Velocidad < 0, motor va hacia atras.
 					 *  Velocidad = 0, detiene el motor
 					 */
-					 void setSpeed(int speed);
+					 virtual void setSpeed(int speed){};
 
 					/**
 					 * @brief Retornar la velidad actual del robot.
 					 * @return La velocidad actual en un rango de -255 a 255.
 					 */
-					 int getSpeed() ;
+					 virtual int getSpeed(){};
 			};
 
 		};

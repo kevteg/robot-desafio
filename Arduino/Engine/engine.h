@@ -127,13 +127,13 @@ namespace robot{
       * @param estado: nueva rutina
       * @return mismo estado pero en formato interno
       */
-      robot::engine::parametro_r conversorCharEstado(char estado);
+      robot::engine::estado_r conversorCharEstado(char estado);
       /**
       * @brief Conversor de parametro en char que se recibe por comando a parametro_r interno
       * @param estado: nueva rutina
       * @return mismo parametro pero en formato interno
       */
-      robot::engine::estado_r    conversorCharParametro(char estado);
+      robot::engine::parametro_r    conversorCharParametro(char estado);
 
       /**
 			 * @brief Rutina de limpieza

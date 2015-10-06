@@ -47,7 +47,7 @@ void robot::engine::run(){
   int distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
 
   if(avanzando)
-    motores[MOTOR_AVANCE].individualStep();
+    (static_cast <motor_step *> (&motores[MOTOR_AVANCE]))->individualStep();
 
   switch(estado_robot){
     case e_avanzar:
@@ -57,7 +57,7 @@ void robot::engine::run(){
     break;
     /*Que este detenido o este limpiando es lo mismo*/
     case e_detener:
-    case e_limpiar:
+    case e_limpiar://Revisar <---
       /*Sólo va a esperar un tiempo si está detenido por maleza o punto caliente*/
       tiempo_actual = millis();
       tiempo_transcurrido = tiempo_actual - tiempo_inicio;
@@ -98,7 +98,7 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
           tiempo_detenido = t_punto_caliente;
           cambioLed(LED_PUNTO_CALIENTE);
         break;
-        case default:
+        default:
           parametro_robot = e_none;
         break;
       }
@@ -151,7 +151,6 @@ robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
       return e_avanzar;
     break;
   }
-  return e_none;
 }
 
 robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
@@ -166,11 +165,10 @@ robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
       return e_inicio_salida;
     break;
   }
-  return e_none;
 }
 
 void robot::engine::limpiar_maleza(){
-  cambiarEstado(e_detener, MALEZA);
+  cambiarEstado(e_detener, e_maleza);
   motores[MOTOR_LIMPIEZA].setSpeed(velocidad_motor_limpieza);
   limpieza++;
   enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));
@@ -186,7 +184,7 @@ void robot::engine::detener(){
 
 void robot::engine::avanzar(){
   avanzando = true;
-  motores[MOTOR_LIMPIEZA].setSpeed(velocidad_0);
+  (motores[MOTOR_LIMPIEZA]).setSpeed(velocidad_0);
   limpieza = 0;
   /* Arrancar motor de avance */
 }
