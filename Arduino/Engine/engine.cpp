@@ -8,9 +8,9 @@ robot::engine::engine(int pin_motor_limpieza, int pin_dir_motor_avance,
                       sensor_ultra(trigger_pin, echo_pin, max_distan_us),
                       promedio_distancia(max_distan_us){
   /**Aquí se deben llamar directamente a los constructores de:
-    *Motor avance
-    *Motor de limpieza
-    *Sensor ultrasonido (Ya se llama arriba)}
+    *Motor avance (Listo)
+    *Motor de limpieza (Listo)
+    *Sensor ultrasonido (Ya se llama arriba)} (Listo)
     *Pantalla
     */
     /*TODO:
