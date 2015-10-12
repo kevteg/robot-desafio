@@ -28,8 +28,9 @@
 /*Definiciones*/
 #define MUY_CERCA                 20   //Si se supera esta distancia es maleza
 #define max_distancia_ultrasonido 100  //Máxima distancia por defecto del ultrasonido en cm
-#define t_punto_caliente          10   //Tiempo de espera para punto caliente
+#define t_punto_caliente          5   //Tiempo de espera para punto caliente
 #define t_maleza                  10   //Tiempo por el que estará detenido
+#define t_limpieza                5   //Tiempo por el que estará limpiando
 #define segundo                   1000 //Segundos en milisegundos
 #define numero_leds               2    //Número de leds del robot por defecto
 #define baudios                   9600 //Baudios de la comunicación serial
@@ -75,7 +76,6 @@ namespace robot{
     protected:
       /*Protegidos para que la misma clase pueda tener métodos que retornen el tipo*/
       enum estado_r{
-              e_limpiar,
               e_detener,
               e_avanzar
               };
@@ -83,6 +83,7 @@ namespace robot{
               e_inicio_salida,
               e_maleza,
               e_punto_caliente,
+              e_limpiar,
               e_none
               };
       parametro_r parametro_robot; //Parámetro de robot (Para conocer porque está defenido)

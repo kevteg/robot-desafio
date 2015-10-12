@@ -48,16 +48,14 @@ void robot::engine::run(){
 
   if(avanzando)
     (static_cast <motor_step *> (&motores[MOTOR_AVANCE]))->individualStep();
-
+  escuchar();
   switch(estado_robot){
     case e_avanzar:
-      escuchar();
       if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, e_maleza);
     break;
     /*Que este detenido o este limpiando es lo mismo*/
     case e_detener:
-    case e_limpiar://Revisar <---
       /*Sólo va a esperar un tiempo si está detenido por maleza o punto caliente*/
       if(parametro_robot != e_inicio_salida){
         tiempo_actual = millis();
@@ -100,6 +98,16 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
           tiempo_detenido = t_punto_caliente;
           cambioLed(LED_PUNTO_CALIENTE);
         break;
+        case e_limpiar:{
+          tiempo_detenido = t_limpieza;
+          if(limpieza <= max_limpieza)
+            limpiar_maleza();
+          else{
+            limpieza = 0;
+            cambiarEstado(e_avanzar);
+          }
+        }
+        break;
         default:
           parametro_robot = e_none;
         break;
@@ -121,15 +129,6 @@ void robot::engine::cambiarEstado(estado_r estado){
       avanzar();
     }
     break;
-    case e_limpiar:{
-      if(limpieza <= max_limpieza)
-        limpiar_maleza();
-      else{
-        limpieza = 0;
-        cambiarEstado(e_avanzar);
-      }
-    }
-    break;
     default:
       estado_robot = estado_anterior;
     break;
@@ -143,9 +142,6 @@ void robot::engine::mostrarPantalla(parametro_r parametro, int distancia){
 }
 robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
   switch(estado){
-    case LIMPIAR:
-      return e_limpiar;
-    break;
     case DETENER:
       return e_detener;
     break;
@@ -166,11 +162,13 @@ robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
     case INICIO_SALIDA:
       return e_inicio_salida;
     break;
+    case LIMPIAR:
+      return e_limpiar;
+    break;
   }
 }
 
 void robot::engine::limpiar_maleza(){
-  cambiarEstado(e_detener, e_maleza);
   motores[MOTOR_LIMPIEZA].setSpeed(velocidad_motor_limpieza);
   limpieza++;
   enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));
@@ -187,7 +185,6 @@ void robot::engine::detener(){
 void robot::engine::avanzar(){
   avanzando = true;
   (motores[MOTOR_LIMPIEZA]).setSpeed(velocidad_0);
-  limpieza = 0;
   /* Arrancar motor de avance */
 }
 
