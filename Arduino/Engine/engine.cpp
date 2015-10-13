@@ -61,6 +61,9 @@ void robot::engine::run(){
         tiempo_actual = millis();
         tiempo_transcurrido = tiempo_actual - tiempo_inicio;
         if(tiempo_transcurrido >= tiempo_detenido)
+          if(parametro_r == e_limpiar)
+            cambiarEstado(e_detener, e_standby);
+          else
             cambiarEstado(e_avanzar);
       }
     break;
@@ -101,13 +104,15 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
         case e_limpiar:{
           tiempo_detenido = t_limpieza;
           if(limpieza <= max_limpieza)
-            limpiar_maleza();
+            limpiarMaleza();
           else{
             limpieza = 0;
             cambiarEstado(e_avanzar);
           }
         }
         break;
+        //Los parámetros standyby e inicio_salida no requieren de medir tiempo ni nada
+        //por ello sólo no hay una sección para ellos aquí
         default:
           parametro_robot = e_none;
         break;
@@ -141,6 +146,7 @@ void robot::engine::mostrarPantalla(parametro_r parametro, int distancia){
   lcd.print(distancia);*/
 }
 robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
+  /*Sólo estan los parámetros que tienen versión CHAR (Los que envia la rpi como parámetro)*/
   switch(estado){
     case DETENER:
       return e_detener;
@@ -152,6 +158,7 @@ robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
 }
 
 robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
+  /*Sólo estan los parámetros que tienen versión CHAR (Los que envia la rpi como parámetro)*/
   switch(estado){
     case MALEZA:
       return e_maleza;
@@ -168,7 +175,7 @@ robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
   }
 }
 
-void robot::engine::limpiar_maleza(){
+void robot::engine::limpiarMaleza(){
   motores[MOTOR_LIMPIEZA].setSpeed(velocidad_motor_limpieza);
   limpieza++;
   enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));

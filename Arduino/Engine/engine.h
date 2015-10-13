@@ -84,6 +84,7 @@ namespace robot{
               e_maleza,
               e_punto_caliente,
               e_limpiar,
+              e_standby, // Para cuando el robot estaba limpiando y termina, se queda en standby hasta que se le confirma si se termino de limpiar la maleza
               e_none
               };
       parametro_r parametro_robot; //Parámetro de robot (Para conocer porque está defenido)
@@ -141,7 +142,7 @@ namespace robot{
        * Detiene el robot y activa el motor de limpieza durante el tiempo designado por variable estátiva max_limpieza
        * El número de limpieza en la que va se lleva con la variable limpieza
 			 */
-      void limpiar_maleza();
+      void limpiarMaleza();
       /**
 			 * @brief Detener el motor principal del robot
        * Detiene el movimiento del robot
