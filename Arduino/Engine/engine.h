@@ -33,15 +33,16 @@
 #define t_maleza                  10   //Tiempo por el que estará detenido
 #define t_limpieza                5   //Tiempo por el que estará limpiando
 #define segundo                   1000 //Segundos en milisegundos
-#define numero_leds               2    //Número de leds del robot por defecto
+#define numero_leds               3    //Número de leds del robot por defecto
 #define baudios                   9600 //Baudios de la comunicación serial
 #define max_limpieza              3    //Máxima cantidad que se limpiara
 #define LED_MALEZA                0    //Posición cero de vector de leds será el led maleza
 #define LED_PUNTO_CALIENTE        1    //Posición uno de vector de leds será el led de punto caliente
+#define LED_ILUMINACION           2    //Posición uno de vector de leds será el led de punto caliente
 /* */
 /*Estas variables se usan para enviar mensajes a la raspberry pi y para manejor interno*/
 #define LIMPIAR                   'L'  //Limpiar en el protócolo
-#define AVANZAR                   'A'  //Evadir en el protócolo
+#define AVANZAR                   'A'  //Avanzar en el protócolo
 #define DETENER                   'D'  //Detener en el protócolo
 #define MALEZA                    'M'  //Maleza en el protócolo
 #define PUNTO_CALIENTE            'P'  //Punto caliente para indicar que el robot se detiene por esa razón
@@ -60,6 +61,7 @@ namespace robot{
 			promedioDinamico <int, 3> promedio_distancia;
       int                       led_maleza;
       int                       led_punto_caliente;
+      int                       led_iluminacion;
       bool                      *_led_encendido;                    //Variable que indica si esta o no un led encendido
 			unsigned long             tiempo_inicio;                      //Tiempo de inicio para verificar las rutinas
       String                    comando;                            //Comandos que llegan al robot
@@ -72,7 +74,6 @@ namespace robot{
       bool                      avanzando;
       motor*                    motores;                           //Motores del robot
       screen                    pantalla;
-      //LiquidCrystal lcd(3,4,5,9,10,11);
 
     protected:
       /*Protegidos para que la misma clase pueda tener métodos que retornen el tipo*/

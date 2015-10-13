@@ -1,11 +1,11 @@
 #include "engine.h"
 
-robot::engine::engine(int pin_motor_limpieza, int pin_dir_motor_avance,
-                      int steps_per_round,  int pin_step_motor_avance,
+robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
+                      int steps_per_round,        int pin_step_motor_avance,
                       int velocidad_motor_avance, int velocidad_motor_limpieza,
-                      int trigger_pin, int echo_pin,
-                      int max_distan_us, int led_maleza, int led_punto_caliente,
-                      int screen_adrs, int screen_colms, int screen_rows) :
+                      int trigger_pin,            int echo_pin,
+                      int max_distan_us,          int led_maleza,   int led_punto_caliente, int led_iluminacion,
+                      int screen_adrs,            int screen_colms, int screen_rows) :
                       sensor_ultra(trigger_pin, echo_pin, max_distan_us),
                       promedio_distancia(max_distan_us),
                       pantalla(screen_adrs, screen_colms, screen_rows){
@@ -26,10 +26,13 @@ robot::engine::engine(int pin_motor_limpieza, int pin_dir_motor_avance,
     /*Configuraciones iniciales de los leds*/
     this->led_maleza                = led_maleza;
     this->led_punto_caliente        = led_punto_caliente;
+    this->led_iluminacion           = led_iluminacion;
     pinMode(this->led_maleza, OUTPUT);
     pinMode(this->led_punto_caliente, OUTPUT);
+    pinMode(this->led_iluminacion, OUTPUT);
     digitalWrite(this->led_maleza, LOW);
     digitalWrite(this->led_punto_caliente, LOW);
+    digitalWrite(this->led_iluminacion, HIGH);
     _led_encendido = new bool[numero_leds];
     for(int i = 0; i < numero_leds; i++)
       _led_encendido[i] = false;
@@ -60,7 +63,7 @@ void robot::engine::run(){
     /*Que este detenido o este limpiando es lo mismo*/
     case e_detener:
       /*Sólo va a esperar un tiempo si está detenido por maleza o punto caliente*/
-      if(parametro_robot != e_inicio_salida){
+      if(parametro_robot != e_standby){
         tiempo_actual = millis();
         tiempo_transcurrido = tiempo_actual - tiempo_inicio;
         if(tiempo_transcurrido >= tiempo_detenido)
@@ -174,7 +177,7 @@ robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
       return e_punto_caliente;
     break;
     case INICIO_SALIDA:
-      return e_inicio_salida;
+      return e_standby;
     break;
     case LIMPIAR:
       return e_limpiar;
@@ -225,7 +228,7 @@ void robot::engine::enviarMensaje(String mensaje){
 }
 
 void robot::engine::cambioLed(int led, bool estado){
-  if(led == LED_MALEZA || led == LED_PUNTO_CALIENTE){
+  if(led == LED_MALEZA || led == LED_PUNTO_CALIENTE || led == LED_ILUMINACION){
     _led_encendido[led] = estado;
     digitalWrite(!led?led_maleza:led_punto_caliente, _led_encendido[led]);
   }
