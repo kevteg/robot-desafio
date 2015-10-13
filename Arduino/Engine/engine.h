@@ -39,7 +39,6 @@
 #define LED_MALEZA                0    //Posición cero de vector de leds será el led maleza
 #define LED_PUNTO_CALIENTE        1    //Posición uno de vector de leds será el led de punto caliente
 #define LED_ILUMINACION           2    //Posición uno de vector de leds será el led de punto caliente
-/* */
 /*Estas variables se usan para enviar mensajes a la raspberry pi y para manejor interno*/
 #define LIMPIAR                   'L'  //Limpiar en el protócolo
 #define AVANZAR                   'A'  //Avanzar en el protócolo
@@ -113,7 +112,7 @@ namespace robot{
              int steps_per_round,  int pin_step_motor_avance,
              int velocidad_motor_avance, int velocidad_motor_limpieza,
              int trigger_pin, int echo_pin, int max_distan_us,
-             int led_maleza, int led_punto_caliente,
+             int led_maleza, int led_punto_caliente, int led_iluminacion,
              int screen_adrs, int screen_colms, int screen_rows);
 
       /**

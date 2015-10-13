@@ -41,7 +41,7 @@ robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
 
 void robot::engine::inicializar(){
   /*El robot estará detenido al principio*/
-  pantalla.iniciar(); //La pantalla está inicializada pero aún no se implementa
+  //pantalla.iniciar(); //La pantalla está inicializada pero aún no se implementa
   distancia_recorrida = 0;
   cambiarEstado(e_detener, e_standby);
   Serial.begin(baudios);
@@ -66,12 +66,14 @@ void robot::engine::run(){
       if(parametro_robot != e_standby){
         tiempo_actual = millis();
         tiempo_transcurrido = tiempo_actual - tiempo_inicio;
-        if(tiempo_transcurrido >= tiempo_detenido)
-          if(parametro_robot == e_limpiar){
-            enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));
-            cambiarEstado(e_detener, e_standby);
-          }else
-            cambiarEstado(e_avanzar);
+        if(parametro_robot != e_standby){
+          if(tiempo_transcurrido >= tiempo_detenido)
+            if(parametro_robot == e_limpiar){
+              enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));
+              cambiarEstado(e_detener, e_standby);
+            }else
+              cambiarEstado(e_avanzar);
+        }
       }
     break;
   }
@@ -139,6 +141,7 @@ void robot::engine::cambiarEstado(estado_r estado){
   estado_robot = estado;
   switch(estado){
     case e_avanzar:{
+      Serial.println("asdas");
       cambioLed(LED_MALEZA, false);
       cambioLed(LED_PUNTO_CALIENTE, false);
       avanzar();
@@ -168,7 +171,7 @@ robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
 }
 
 robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
-  /*Sólo estan los parámetros que tienen versión CHAR (Los que envia la rpi como parámetro)*/
+  /*Sólo están los parámetros que tienen versión CHAR (Los que envia la rpi como parámetro)*/
   switch(estado){
     case MALEZA:
       return e_maleza;
@@ -200,6 +203,7 @@ void robot::engine::detener(){
 
 void robot::engine::avanzar(){
   avanzando = true;
+
   (motores[MOTOR_LIMPIEZA]).setSpeed(velocidad_0);
   /* Arrancar motor de avance */
 }
