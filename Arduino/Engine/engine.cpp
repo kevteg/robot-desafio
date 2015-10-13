@@ -61,9 +61,10 @@ void robot::engine::run(){
         tiempo_actual = millis();
         tiempo_transcurrido = tiempo_actual - tiempo_inicio;
         if(tiempo_transcurrido >= tiempo_detenido)
-          if(parametro_r == e_limpiar)
+          if(parametro_r == e_limpiar){
+            enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));
             cambiarEstado(e_detener, e_standby);
-          else
+          }else
             cambiarEstado(e_avanzar);
       }
     break;
@@ -95,14 +96,15 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
       switch (parametro) {
         case e_maleza:
           tiempo_detenido = t_maleza;
-          cambioLed(LED_MALEZA);
+          cambioLed(LED_MALEZA, true);
         break;
         case e_punto_caliente:
           tiempo_detenido = t_punto_caliente;
-          cambioLed(LED_PUNTO_CALIENTE);
+          cambioLed(LED_PUNTO_CALIENTE, true);
         break;
         case e_limpiar:{
           tiempo_detenido = t_limpieza;
+          cambioLed(LED_MALEZA, true);
           if(limpieza <= max_limpieza)
             limpiarMaleza();
           else{
@@ -131,6 +133,8 @@ void robot::engine::cambiarEstado(estado_r estado){
   estado_robot = estado;
   switch(estado){
     case e_avanzar:{
+      cambioLed(LED_MALEZA, false);
+      cambioLed(LED_PUNTO_CALIENTE, false);
       avanzar();
     }
     break;
@@ -178,7 +182,6 @@ robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
 void robot::engine::limpiarMaleza(){
   motores[MOTOR_LIMPIEZA].setSpeed(velocidad_motor_limpieza);
   limpieza++;
-  enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));
 }
 
 void robot::engine::detener(){
@@ -218,9 +221,9 @@ void robot::engine::enviarMensaje(String mensaje){
   Serial.print(envio);
 }
 
-void robot::engine::cambioLed(int led){
+void robot::engine::cambioLed(int led, bool estado){
   if(led == LED_MALEZA || led == LED_PUNTO_CALIENTE){
-    _led_encendido[led] = !_led_encendido[led];
+    _led_encendido[led] = estado;
     digitalWrite(!led?led_maleza:led_punto_caliente, _led_encendido[led]);
   }
 }

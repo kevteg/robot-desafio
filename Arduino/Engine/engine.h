@@ -170,7 +170,7 @@ namespace robot{
       * @brief Cambiar el estado de led
       * @param led: Si led está encendido se apaga y si está apagado se enciende
       */
-      void cambioLed(int led);
+      void cambioLed(int led, bool estado);
       /**
       * @brief Mostrar información por pantalla
       * @param mensaje: Lo que se debe mostrar, la idea es que sea un mensaje
