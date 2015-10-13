@@ -61,7 +61,7 @@ void robot::engine::run(){
         tiempo_actual = millis();
         tiempo_transcurrido = tiempo_actual - tiempo_inicio;
         if(tiempo_transcurrido >= tiempo_detenido)
-          if(parametro_r == e_limpiar){
+          if(parametro_robot == e_limpiar){
             enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));
             cambiarEstado(e_detener, e_standby);
           }else

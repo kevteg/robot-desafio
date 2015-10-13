@@ -3,28 +3,29 @@
  * @brief Librería de control del robot del lado de Arduino
  * @author Kevin Hernández, Gerardo Sánchez
  */
-
+//<> en lugar de "" porque las librerias propias se tratan como externas
 #ifndef ROBOT_ENGINE_H_
 #define ROBOT_ENGINE_H_
 
-
-#include "motor.h"
-#include "motor_step.h"
+/*Motor*/
+#include <motor.h>
+#include <motor_step.h>
 #include <AFMotor.h>
-#include "motor_adafruit.h"
-/**La clase de movilidad debe adaptarse al motor que tenga
-* Habrán dos instancias:
-*    Una para el motor de avance y otro para el motor de limpieza
-*/
-  /*Sensor ultrasonido*/
-  #include <NewPing.h>
+#include <motor_adafruit.h>
 
-  #include "control_sensor.h"
-  #include <newping_control_sensor.h>
-  /*Pantalla*/
-//  #include <LiquidCrystal.h>
-  /*Auxiliares*/
-  #include "promedio.h"
+/*Sensor ultrasonido*/
+#include <NewPing.h>
+#include <control_sensor.h>
+#include <newping_control_sensor.h>
+
+/*Pantalla*/
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <screen.h>
+
+/*Auxiliares*/
+#include "promedio.h"
+
 /*Definiciones*/
 #define MUY_CERCA                 20   //Si se supera esta distancia es maleza
 #define max_distancia_ultrasonido 100  //Máxima distancia por defecto del ultrasonido en cm

@@ -1,4 +1,5 @@
 
+/*Motor*/
 #include <AFMotor.h>
 #include <motor.h>
 #include <motor_adafruit.h>
@@ -9,9 +10,13 @@
 #include <control_sensor.h>
 #include <newping_control_sensor.h>
 /*Pantalla*/
-#include <LiquidCrystal.h>
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+#include <screen.h>
+
 /*Auxiliares*/
 #include <promedio.h>
+/*Principal*/
 #include <engine.h>
 
 #define _pin_motor_limpieza 1
