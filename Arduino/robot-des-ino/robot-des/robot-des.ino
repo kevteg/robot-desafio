@@ -19,16 +19,16 @@
 /*Principal*/
 #include <engine.h>
 
-#define _pin_motor_limpieza 1
-#define _pin_dir_motor_avance 2
+#define _pin_motor_limpieza 2
+#define _pin_dir_motor_avance 11
 #define _steps_per_round 200
-#define _pin_step_motor_avance 3
-#define _velocidad_motor_avance 3
-#define _velocidad_motor_limpieza 4
-#define _trigger_pin 5
-#define _echo_pin 6
+#define _pin_step_motor_avance 13
+#define _velocidad_motor_avance 4
+#define _velocidad_motor_limpieza 255
+#define _trigger_pin 14
+#define _echo_pin 19
 #define _max_distan_us 6
-#define _led_maleza 6
+#define _led_maleza 5
 #define _led_punto_caliente 6
 
 
