@@ -81,7 +81,6 @@ namespace robot{
               e_avanzar
               };
       enum parametro_r{
-              e_inicio_salida,
               e_maleza,
               e_punto_caliente,
               e_limpiar,

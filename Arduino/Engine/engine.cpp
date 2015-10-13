@@ -40,7 +40,7 @@ void robot::engine::inicializar(){
   /*El robot estará detenido al principio*/
   pantalla.iniciar(); //La pantalla está inicializada pero aún no se implementa
   distancia_recorrida = 0;
-  cambiarEstado(e_detener, e_inicio_salida);
+  cambiarEstado(e_detener, e_standby);
   Serial.begin(baudios);
 }
 
