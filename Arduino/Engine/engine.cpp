@@ -4,9 +4,11 @@ robot::engine::engine(int pin_motor_limpieza, int pin_dir_motor_avance,
                       int steps_per_round,  int pin_step_motor_avance,
                       int velocidad_motor_avance, int velocidad_motor_limpieza,
                       int trigger_pin, int echo_pin,
-                      int max_distan_us, int led_maleza, int led_punto_caliente) :
+                      int max_distan_us, int led_maleza, int led_punto_caliente,
+                      int screen_adrs, int screen_colms, int screen_rows) :
                       sensor_ultra(trigger_pin, echo_pin, max_distan_us),
-                      promedio_distancia(max_distan_us){
+                      promedio_distancia(max_distan_us),
+                      pantalla(screen_adrs, screen_colms, screen_rows){
   /**Aquí se deben llamar directamente a los constructores de:
     *Motor avance (Listo)
     *Motor de limpieza (Listo)
@@ -36,6 +38,7 @@ robot::engine::engine(int pin_motor_limpieza, int pin_dir_motor_avance,
 
 void robot::engine::inicializar(){
   /*El robot estará detenido al principio*/
+  pantalla.iniciar(); //La pantalla está inicializada pero aún no se implementa
   distancia_recorrida = 0;
   cambiarEstado(e_detener, e_inicio_salida);
   Serial.begin(baudios);

@@ -30,12 +30,16 @@
 #define _max_distan_us 6
 #define _led_maleza 5
 #define _led_punto_caliente 6
+#define _screen_adr 0x27
+#define _screen_colms 16
+#define _screen_rows 2
 
 
 using namespace robot;
 engine Robot(_pin_motor_limpieza, _pin_dir_motor_avance, _steps_per_round, _pin_step_motor_avance, _velocidad_motor_avance, _velocidad_motor_limpieza, 
             _trigger_pin, _echo_pin, _max_distan_us, 
-            _led_maleza, _led_punto_caliente);
+            _led_maleza, _led_punto_caliente,
+            _screen_adr, _screen_colms, _screen_rows);
 
 void setup() {
   Robot.inicializar();

@@ -71,7 +71,7 @@ namespace robot{
       int                       velocidad_motor_limpieza;
       bool                      avanzando;
       motor*                    motores;                           //Motores del robot
-
+      screen                    pantalla;
       //LiquidCrystal lcd(3,4,5,9,10,11);
 
     protected:
@@ -105,12 +105,16 @@ namespace robot{
 			 *	    max_distan_us: Máxima distancia a medir por el sensor de ultrasonido
 			 *		  pin_sir1: Pin del sensor infrarojo 1
 			 *      pin_sir2: Pin del sensor infrarojo 2
+       *      screen_adrs: Dirección de pantalla (Normalemente 0x27)
+       *      screen_colms: Columnas de pantalla
+       *      screen_rows: Filas de pantalla
 			 */
 			engine(int pin_motor_limpieza, int pin_dir_motor_avance,
              int steps_per_round,  int pin_step_motor_avance,
              int velocidad_motor_avance, int velocidad_motor_limpieza,
              int trigger_pin, int echo_pin, int max_distan_us,
-            int led_maleza, int led_punto_caliente);
+             int led_maleza, int led_punto_caliente,
+             int screen_adrs, int screen_colms, int screen_rows);
 
       /**
       * @brief Interpretar los comandos que se reciben para cambiar el estado del robot
