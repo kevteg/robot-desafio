@@ -40,6 +40,7 @@
 #define LED_PUNTO_CALIENTE        1    //Posición uno de vector de leds será el led de punto caliente
 #define LED_ILUMINACION           2    //Posición uno de vector de leds será el led de punto caliente
 /*Estas variables se usan para enviar mensajes a la raspberry pi y para manejor interno*/
+//Revisar:
 #define LIMPIAR                   'L'  //Limpiar en el protócolo
 #define AVANZAR                   'A'  //Avanzar en el protócolo
 #define DETENER                   'D'  //Detener en el protócolo
@@ -48,7 +49,7 @@
 #define INICIO_SALIDA             'X'  //Para indicarle al robot al detenerse que no importa la distancia porque es inicio o salida
 #define SEPARADOR                 ':'  //Separador del protócolo
 #define DELIMITADOR_I             '<'  //Delimitador inicial del protócolo
-#define DELIMITADOR_F             '>'  //Delimitador inicial del protócolo
+#define DELIMITADOR_F             '>'  //Delimitador final del protócolo
 #define n_motores                  2   //Número de motores
 #define MOTOR_LIMPIEZA             0   //Posición del motor de limpieza en el vector de motores
 #define MOTOR_AVANCE               1   //Posición del motor de avance en el vector de motores

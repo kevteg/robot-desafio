@@ -67,7 +67,7 @@ void robot::engine::run(){
         tiempo_actual = millis();
         tiempo_transcurrido = tiempo_actual - tiempo_inicio;
         if(parametro_robot != e_standby){
-          if(tiempo_transcurrido >= tiempo_detenido)
+          if(tiempo_transcurrido >= tiempo_detenido*segundo)
             if(parametro_robot == e_limpiar){
               enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));
               cambiarEstado(e_detener, e_standby);
@@ -75,6 +75,7 @@ void robot::engine::run(){
               cambiarEstado(e_avanzar);
         }
       }
+
     break;
   }
 
@@ -124,7 +125,7 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
         //Los parámetros standyby e inicio_salida no requieren de medir tiempo ni nada
         //por ello sólo no hay una sección para ellos aquí
         default:
-          parametro_robot = e_none;
+          parametro_robot = e_standby;
         break;
       }
       //Mostrará por pantalla sí es punto caliente o cualquier maleza
@@ -141,7 +142,6 @@ void robot::engine::cambiarEstado(estado_r estado){
   estado_robot = estado;
   switch(estado){
     case e_avanzar:{
-      Serial.println("asdas");
       cambioLed(LED_MALEZA, false);
       cambioLed(LED_PUNTO_CALIENTE, false);
       avanzar();
