@@ -72,7 +72,7 @@ namespace robot{
       int                       velocidad_motor_avance;
       int                       velocidad_motor_limpieza;
       bool                      avanzando;
-      motor*                    motores;                           //Motores del robot
+      motor**                   motores;                           //Motores del robot
       screen                    pantalla;
 
     protected:

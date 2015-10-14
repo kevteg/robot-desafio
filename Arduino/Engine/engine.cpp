@@ -18,9 +18,9 @@ robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
     /*TODO:
       Distancia recorrida desde el inicio
     */
-    motores                         = new motor[n_motores];
-    motores[MOTOR_LIMPIEZA]         = motor_adafruit(pin_motor_limpieza);
-    motores[MOTOR_AVANCE]           = motor_step(steps_per_round, pin_step_motor_avance, pin_dir_motor_avance);
+    motores                         = new motor*[n_motores];
+    motores[MOTOR_LIMPIEZA]         = new motor_adafruit(pin_motor_limpieza);
+    motores[MOTOR_AVANCE]           = new motor_step(steps_per_round, pin_step_motor_avance, pin_dir_motor_avance);
     this->velocidad_motor_limpieza  = velocidad_motor_limpieza;
     this->velocidad_motor_avance    = velocidad_motor_avance;
     /*Configuraciones iniciales de los leds*/
@@ -53,7 +53,7 @@ void robot::engine::run(){
   int distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
 
   if(avanzando)
-    (static_cast <motor_step *> (&motores[MOTOR_AVANCE]))->individualStep();
+    (static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep();
   escuchar();
   switch(estado_robot){
     case e_avanzar:
@@ -189,7 +189,7 @@ robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
 }
 
 void robot::engine::limpiarMaleza(){
-  motores[MOTOR_LIMPIEZA].setSpeed(velocidad_motor_limpieza);
+  motores[MOTOR_LIMPIEZA]->setSpeed(velocidad_motor_limpieza);
   limpieza++;
 }
 
@@ -197,14 +197,14 @@ void robot::engine::detener(){
  //distancia_recorrida = nueva_distancia
  /*Detener motor de avance */
  avanzando = false;
- motores[MOTOR_LIMPIEZA].setSpeed(velocidad_0);
+ motores[MOTOR_LIMPIEZA]->setSpeed(velocidad_0);
 
 }
 
 void robot::engine::avanzar(){
   avanzando = true;
 
-  (motores[MOTOR_LIMPIEZA]).setSpeed(velocidad_0);
+  (motores[MOTOR_LIMPIEZA])->setSpeed(velocidad_0);
   /* Arrancar motor de avance */
 }
 
