@@ -27,11 +27,12 @@
 #include "promedio.h"
 
 /*Definiciones*/
-#define MUY_CERCA                 20   //Si se supera esta distancia es maleza
+#define MUY_CERCA                 5   //Si se supera esta distancia es maleza al suelo
 #define max_distancia_ultrasonido 100  //Máxima distancia por defecto del ultrasonido en cm
-#define t_punto_caliente          5   //Tiempo de espera para punto caliente
+#define t_punto_caliente          10   //Tiempo de espera para punto caliente
 #define t_maleza                  10   //Tiempo por el que estará detenido
 #define t_limpieza                5   //Tiempo por el que estará limpiando
+#define t_espera_verificacion     2   //Tiempo de espera de verificación
 #define segundo                   1000 //Segundos en milisegundos
 #define numero_leds               3    //Número de leds del robot por defecto
 #define baudios                   9600 //Baudios de la comunicación serial
@@ -59,14 +60,13 @@ namespace robot{
 		private:
 			sensorUltra               sensor_ultra;
 			promedioDinamico <int, 3> promedio_distancia;
-      int                       led_maleza;
-      int                       led_punto_caliente;
-      int                       led_iluminacion;
+      int                       *leds;
       bool                      *_led_encendido;                    //Variable que indica si esta o no un led encendido
 			unsigned long             tiempo_inicio;                      //Tiempo de inicio para verificar las rutinas
       String                    comando;                            //Comandos que llegan al robot
       int                       limpieza;                           //Variable que cuenta el número de veces que se ha limpiado
                                                                     //Debe reiniciarse cada vez que se llega al máximo de número de limpieza
+      int                       pin_motor_limpieza;
       int                       distancia_recorrida;                //Distancia desde el origen
       int                       tiempo_detenido;                    //Tiempo por el cual estará detenido
       int                       velocidad_motor_avance;
@@ -74,6 +74,7 @@ namespace robot{
       bool                      avanzando;
       motor**                   motores;                           //Motores del robot
       screen                    pantalla;
+      
 
     protected:
       /*Protegidos para que la misma clase pueda tener métodos que retornen el tipo*/

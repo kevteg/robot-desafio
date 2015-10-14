@@ -24,7 +24,7 @@ void robot::motor_step::individualStep(){
 }
 
 void robot::motor_step::sleep(){
-  Serial.println("sleep");
+  //Serial.println("sleep");
   long hold_time_us = (long)(1.0 / (double) steps_per_round / speed / 2.0 * 1E6);
   int overflow_count = hold_time_us / 65535;
   for (int i = 0; i < overflow_count; i++)
