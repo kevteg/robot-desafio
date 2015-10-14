@@ -60,7 +60,7 @@ void robot::engine::run(){
     //(static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep();
   escuchar();
 
-/*  switch(estado_robot){
+  switch(estado_robot){
     case e_avanzar:
     distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
     tiempo_actual = millis();
@@ -71,9 +71,9 @@ void robot::engine::run(){
         cambiarEstado(e_detener, e_maleza);
 
     break;
-    /*Que este detenido o este limpiando es lo mismo
+    /*Que este detenido o este limpiando es lo mismo*/
     case e_detener:
-      /*Sólo va a esperar un tiempo si está detenido por maleza o punto caliente
+      /*Sólo va a esperar un tiempo si está detenido por maleza o punto caliente*/
       if(parametro_robot != e_standby){
         tiempo_actual = millis();
         tiempo_transcurrido = tiempo_actual - tiempo_inicio;
@@ -87,7 +87,7 @@ void robot::engine::run(){
         }
       }
     break;
-  }*/
+  }
 
 }
 
