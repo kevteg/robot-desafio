@@ -45,7 +45,7 @@ void robot::engine::inicializar(){
   //pantalla.iniciar(); //La pantalla está inicializada pero aún no se implementa
   Serial.begin(baudios);
   distancia_recorrida = 0;
-
+  pantalla.iniciar();
   cambiarEstado(e_detener, e_standby);
 }
 
@@ -64,8 +64,8 @@ void robot::engine::run(){
     distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
     tiempo_actual = millis();
     tiempo_transcurrido = tiempo_actual - tiempo_inicio;
-
-    if(tiempo_transcurrido > t_espera_verificacion*segundo)
+    Serial.println(distancia_al_suelo);
+    if(tiempo_transcurrido > t_espera_verificacion*segundo) //Debido a que este sensor se comporta extraño
       if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, e_maleza);
     break;
@@ -114,17 +114,17 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
       mostrarPantalla(parametro, distancia_recorrida);
       switch (parametro) {
         case e_maleza:
-          Serial.println("Maleza");
+          pantalla.mostrar("Maleza", false);
           tiempo_detenido = t_maleza;
           cambioLed(LED_MALEZA, true);
         break;
         case e_punto_caliente:
-          Serial.println("Punto Caliente");
+          pantalla.mostrar("Punto Caliente", false);
           tiempo_detenido = t_punto_caliente;
           cambioLed(LED_PUNTO_CALIENTE, true);
         break;
         case e_limpiar:{
-          Serial.println("Limpieza");
+          pantalla.mostrar("Limpieza", false);
           tiempo_detenido = t_limpieza;
           cambioLed(LED_MALEZA, true);
           if(limpieza <= max_limpieza)
@@ -138,6 +138,9 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
         //Los parámetros standyby e inicio_salida no requieren de medir tiempo ni nada
         //por ello sólo no hay una sección para ellos aquí
         default:
+          cambioLed(LED_MALEZA, false);
+          cambioLed(LED_PUNTO_CALIENTE, false);
+          pantalla.mostrar("Esperando", false);
           parametro_robot = e_standby;
         break;
       }
@@ -156,7 +159,7 @@ void robot::engine::cambiarEstado(estado_r estado){
   switch(estado){
     case e_avanzar:{
       tiempo_inicio = millis();
-      Serial.println("Avanzar");
+      pantalla.mostrar("Avanzando", false);
       cambioLed(LED_MALEZA, false);
       cambioLed(LED_PUNTO_CALIENTE, false);
       avanzar();
