@@ -19,7 +19,6 @@ robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
       Distancia recorrida desde el inicio
     */
 
-
     motores                         = new motor*[n_motores];
     motores[MOTOR_LIMPIEZA]         = new motor_adafruit(pin_motor_limpieza);
     motores[MOTOR_AVANCE]           = new motor_step(steps_per_round, pin_step_motor_avance, pin_dir_motor_avance);
@@ -47,7 +46,7 @@ void robot::engine::inicializar(){
   Serial.begin(baudios);
   distancia_recorrida = 0;
 
-  //cambiarEstado(e_detener, e_standby);
+  cambiarEstado(e_detener, e_standby);
 }
 
 void robot::engine::run(){
@@ -65,11 +64,10 @@ void robot::engine::run(){
     distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
     tiempo_actual = millis();
     tiempo_transcurrido = tiempo_actual - tiempo_inicio;
-    Serial.println(distancia_al_suelo);
+
     if(tiempo_transcurrido > t_espera_verificacion*segundo)
       if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, e_maleza);
-
     break;
     /*Que este detenido o este limpiando es lo mismo*/
     case e_detener:
