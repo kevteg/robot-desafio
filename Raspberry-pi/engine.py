@@ -57,5 +57,5 @@ class engine:
         cap.release()
         cv2.destroyAllWindows()
 
-motor = engine(0, True, False)
+motor = engine(0, False, False)
 motor.control()
