@@ -55,6 +55,7 @@
 #define MOTOR_LIMPIEZA             0   //Posición del motor de limpieza en el vector de motores
 #define MOTOR_AVANCE               1   //Posición del motor de avance en el vector de motores
 #define velocidad_0                0   //Velocidad cero de avance
+#define nombre_robot               "Heimdal"
 namespace robot{
     class engine{
 		private:
@@ -74,7 +75,7 @@ namespace robot{
       bool                      avanzando;
       motor**                   motores;                           //Motores del robot
       screen                    pantalla;
-      
+
 
     protected:
       /*Protegidos para que la misma clase pueda tener métodos que retornen el tipo*/

@@ -62,10 +62,10 @@ void robot::engine::run(){
   switch(estado_robot){
     case e_avanzar:
     distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
-    tiempo_actual = millis();
-    tiempo_transcurrido = tiempo_actual - tiempo_inicio;
+    //tiempo_actual = millis();
+    //tiempo_transcurrido = tiempo_actual - tiempo_inicio;
     Serial.println(distancia_al_suelo);
-    if(tiempo_transcurrido > t_espera_verificacion*segundo) //Debido a que este sensor se comporta extraño
+    //if(tiempo_transcurrido > t_espera_verificacion*segundo) //Debido a que este sensor se comporta extraño
       if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, e_maleza);
     break;
@@ -106,24 +106,24 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
   estado_robot = estado;
   switch(estado){
     case e_detener:{
-
+      Serial.println("Entro");
       detener();
       tiempo_inicio = millis();
       parametro_robot = parametro;
-      mostrarPantalla(parametro, distancia_recorrida);
+      //mostrarPantalla(parametro, distancia_recorrida);
       switch (parametro) {
         case e_maleza:
-
+         Serial.println("Maleza");
           tiempo_detenido = t_maleza;
           cambioLed(LED_MALEZA, true);
         break;
         case e_punto_caliente:
-
+        Serial.println("Maleza");
           tiempo_detenido = t_punto_caliente;
           cambioLed(LED_PUNTO_CALIENTE, true);
         break;
         case e_limpiar:{
-
+          Serial.println("Limpiar");
           tiempo_detenido = t_limpieza;
           cambioLed(LED_MALEZA, true);
           if(limpieza <= max_limpieza)
@@ -157,6 +157,8 @@ void robot::engine::cambiarEstado(estado_r estado){
   switch(estado){
     case e_avanzar:{
       tiempo_inicio = millis();
+      //pantalla.apagar();
+      //mostrarPantalla(e_maleza, 55);
       cambioLed(LED_MALEZA, false);
       cambioLed(LED_PUNTO_CALIENTE, false);
       avanzar();
@@ -168,7 +170,25 @@ void robot::engine::cambiarEstado(estado_r estado){
   }
 }
 void robot::engine::mostrarPantalla(parametro_r parametro, int distancia){
-
+  char *texto[2];
+  strcpy(texto[0], nombre_robot);
+  switch (parametro) {
+    case e_maleza:
+      strcpy(texto[0], " Maleza");
+    break;
+    case e_punto_caliente:
+      strcpy(texto[0], " Punto C");
+    break;
+    case e_limpiar:
+      strcpy(texto[0], " Limpiar");
+    break;
+    default:
+      strcpy(texto[0], " Espera");
+    break;
+  }
+  strcpy(texto[1], "Distancia: ");
+  //Serial.println(texto[])
+  pantalla.mostrar(texto, false);
 }
 robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
   /*Sólo estan los parámetros que tienen versión CHAR (Los que envia la rpi como parámetro)*/
@@ -201,7 +221,6 @@ robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
 }
 
 void robot::engine::limpiarMaleza(){
-  Serial.println("limpiar");
   motores[MOTOR_LIMPIEZA]->setSpeed(velocidad_motor_limpieza);
   limpieza++;
 }
