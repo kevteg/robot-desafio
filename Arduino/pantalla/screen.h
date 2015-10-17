@@ -6,6 +6,8 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
+#define numero_lineas 2
+
 #ifndef SCREEN_H
 #define SCREEN_H
 
@@ -25,7 +27,8 @@
            * @param texto: texto a mostrar por pantalla
            *        blinking: Para que el mensaje titile hasta que se envie otra cosa
 					 */
-          void mostrar(char texto[], bool blinking);
+          void mostrar(char **texto, bool blinking);
+					void apagar();
 			};
 
 		};

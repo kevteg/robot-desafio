@@ -104,27 +104,26 @@ void robot::engine::ejecutarComando(String comando){
 void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
   estado_r estado_anterior = estado_robot; //En caso que el estado no sea valido
   estado_robot = estado;
-  Serial.println("Entro");
   switch(estado){
     case e_detener:{
-      Serial.println("Detener");
+
       detener();
       tiempo_inicio = millis();
       parametro_robot = parametro;
       mostrarPantalla(parametro, distancia_recorrida);
       switch (parametro) {
         case e_maleza:
-          pantalla.mostrar("Maleza", false);
+
           tiempo_detenido = t_maleza;
           cambioLed(LED_MALEZA, true);
         break;
         case e_punto_caliente:
-          pantalla.mostrar("Punto Caliente", false);
+
           tiempo_detenido = t_punto_caliente;
           cambioLed(LED_PUNTO_CALIENTE, true);
         break;
         case e_limpiar:{
-          pantalla.mostrar("Limpieza", false);
+
           tiempo_detenido = t_limpieza;
           cambioLed(LED_MALEZA, true);
           if(limpieza <= max_limpieza)
@@ -140,7 +139,6 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
         default:
           cambioLed(LED_MALEZA, false);
           cambioLed(LED_PUNTO_CALIENTE, false);
-          pantalla.mostrar("Esperando", false);
           parametro_robot = e_standby;
         break;
       }
@@ -159,7 +157,6 @@ void robot::engine::cambiarEstado(estado_r estado){
   switch(estado){
     case e_avanzar:{
       tiempo_inicio = millis();
-      pantalla.mostrar("Avanzando", false);
       cambioLed(LED_MALEZA, false);
       cambioLed(LED_PUNTO_CALIENTE, false);
       avanzar();
@@ -171,10 +168,7 @@ void robot::engine::cambiarEstado(estado_r estado){
   }
 }
 void robot::engine::mostrarPantalla(parametro_r parametro, int distancia){
-/*  lcd.setCursor(0,0);//primera linea
-  lcd.print(razon);
-  lcd.setCursor(0,2);//segunda linea
-  lcd.print(distancia);*/
+
 }
 robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
   /*Sólo estan los parámetros que tienen versión CHAR (Los que envia la rpi como parámetro)*/
