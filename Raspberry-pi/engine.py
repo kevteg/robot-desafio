@@ -2,6 +2,7 @@
 import sys
 
 sys.path.append('/usr/local/lib/python2.7/site-packages')
+import serial
 import cv2
 import vision
 import numpy as np
@@ -10,13 +11,16 @@ def nothing(*arg):
         pass
 
 class engine:
-
+    PUNTO_CALIENTE = "<D:P>"
+    MALEZA         = "<D:M>"
+    AVANZA         = "<A>"
     def __init__(self, camara, mostrar_pantalla, testing_cam):
         self.camara = camara
         self.mostrar_pantalla = mostrar_pantalla
         self.testing_cam = testing_cam
         tam_punto_caliente = 1000
         tam_maleza = 1500
+        ser = serial.Serial(‘/dev/ttyAMA0’, 9600, timeout=1)
         self.vis = vision.vision(tam_punto_caliente, tam_maleza, self.mostrar_pantalla)
 
     def control(self):
@@ -42,10 +46,16 @@ class engine:
             ret, img = cap.read()
             img = img[0:600, 300:500]
             tipo = self.vis.revision(img, self.testing_cam)
-            if tipo == 1:
-                print("Maleza");
-            elif tipo == 2:
-                print("Punto caliente");
+            try:
+                if tipo == 1
+                    ser.write(MALEZA)
+                else:
+                    if tipo == 2
+                        ser.write(PUNTO_CALIENTE)
+                    else:
+                        ser.write(AVANZA)
+            except serial.SerialException:
+            continue
             if self.mostrar_pantalla:
                 cv2.rectangle(img,(0,200),(200,400),(0,255,0),3)
                 cv2.imshow('Real', img)
