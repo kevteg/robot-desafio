@@ -14,9 +14,10 @@ class engine:
 
     def __init__(self, camara, mostrar_pantalla, testing_cam):
         self.PUNTO_CALIENTE = "<D:P>"
-	self.MALEZA         = "<D:M>"
+	    self.MALEZA         = "<D:M>"
         self.AVANZA         = "<A>"
-	self.camara = camara
+        self.ult_men        = ' '
+	    self.camara = camara
         self.mostrar_pantalla = mostrar_pantalla
         self.testing_cam = testing_cam
         tam_punto_caliente = 1000
@@ -49,19 +50,19 @@ class engine:
             tipo = self.vis.revision(img, self.testing_cam)
             try:
                 if tipo == 1:
-		    print("Maleza")
-                    self.ser.write(self.MALEZA)
-                else:
-                    if tipo == 2:
+                    if self.ult_men != self.MALEZA
+                        print("Maleza")
+                        self.ser.write(self.MALEZA)
+                elif tipo == 2:
+                    if self.ult_men != self.PUNTO_CALIENTE
                         print("Punto Caliente")
                         self.ser.write(self.PUNTO_CALIENTE)
-                    #else:
-			#print("Avanza")
-                        #self.ser.write(self.AVANZA)
+
             except serial.SerialException:
-	       continue
+	               continue
 	    response = self.ser.readline()
 	    if len(response) > 0:
+            self.ult_men = response
 	    	print response
 
             if self.mostrar_pantalla:
