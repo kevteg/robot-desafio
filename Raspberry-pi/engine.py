@@ -1,90 +1,150 @@
-#!/usr/bin/python
-import sys
-
-sys.path.append('/usr/local/lib/python2.7/site-packages')
-import serial
+from threading import Thread
 import time
-import cv2
-import vision
-import numpy as np
 import sys
+import serial
+sys.path.append('/usr/local/lib/python2.7/site-packages')
+import cv2
+import numpy as np
+
 def nothing(*arg):
         pass
 
-class engine:
+camara                 = 0
+cap                    = cv2.VideoCapture(camara)
+ret, img               = cap.read()
+terminated             = False
+tam_punto_caliente     = 1000
+tam_maleza             = 1500
+tam_defecto            = 1000
+mostrar_pantalla       = True
+H                      = 0;
+S                      = 1;
+V                      = 2;
+min                    = 0;
+max                    = 1;
+maleza                 = [[0 for x in range(2)] for x in range(3)]
+punto_caliente         = [[0 for x in range(2)] for x in range(3)]
+#Datos de maleza
+maleza[H][min]         = 50;
+maleza[H][max]         = 100;
+maleza[S][min]         = 120;
+maleza[S][max]         = 255;
+maleza[V][min]         = 50;
+maleza[V][max]         = 255;
+#Datos de punto caliente
+punto_caliente[H][min] = 0;
+punto_caliente[H][max] = 180;
+punto_caliente[S][min] = 0;
+punto_caliente[S][max] = 60;
+punto_caliente[V][min] = 200;
+punto_caliente[V][max] = 255;
 
-    def __init__(self, camara, mostrar_pantalla, testing_cam):
-        self.PUNTO_CALIENTE   = "<D:P>"
-	self.MALEZA           = "<D:M>"
-        self.AVANZA           = "<A>"
-        self.ult_men          = ''
-	self.tiempo_sin_men   = 4 #Tiempo en el que la raspberry no envia mensajes al arduino (si sigue viendo lo mismo)
-	self.camara 	      = camara
-        self.mostrar_pantalla = mostrar_pantalla
-        self.testing_cam      = testing_cam
-        tam_punto_caliente    = 1000
-        tam_maleza            = 1500
-        self.ser 	      = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
-        self.vis              = vision.vision(tam_punto_caliente, tam_maleza, self.mostrar_pantalla)
+lower_maleza           = np.array([maleza[H][min], maleza[S][min], maleza[V][min]])
+upper_maleza           = np.array([maleza[H][max], maleza[S][max], maleza[V][max]])
 
-    def control(self):
-        if self.mostrar_pantalla:
-            cv2.namedWindow('Real')
-            cv2.namedWindow('Procesada')
-        cap = cv2.VideoCapture(self.camara)
+lower_punto_caliente   = np.array([punto_caliente[H][min], punto_caliente[S][min], punto_caliente[V][min]])
+upper_punto_caliente   = np.array([punto_caliente[H][max], punto_caliente[S][max], punto_caliente[V][max]])
 
-        if self.testing_cam:
-            cv2.createTrackbar('H-min','Real',0,255, nothing)
-            cv2.createTrackbar('S-min','Real',0,255, nothing)
-            cv2.createTrackbar('V-min','Real',0,255, nothing)
+testing                = False
+tipo                   = 0
+tim = 1/30
+def captura():
+    global img, cap, terminated
+    if mostrar_pantalla:
+        cv2.namedWindow('Real')
+        cv2.namedWindow('Img-pro')
+        cv2.namedWindow('Procesada')
+    while True:
+        time.sleep(tim)
+        ret, img = cap.read()
+        img = img[0:600, 300:500]
+        if mostrar_pantalla:
+            cv2.imshow('Real', img)
 
-            cv2.createTrackbar('H-max','Real',0,255, nothing)
-            cv2.createTrackbar('S-max','Real',0,255, nothing)
-            cv2.createTrackbar('V-max','Real',0,255, nothing)
-	tiempo = 0
-        while True:
-            '''
-                Aqui es donde se hace la toma de decisiones:
-                    donde se consideran los tiempos de espera
-                    donde se comunican los eventos al arduino
-            '''
-            ret, img = cap.read()
-            img = img[0:600, 300:500]
-            tipo = self.vis.revision(img, self.testing_cam)
+        ch = cv2.waitKey(100)
+        if ch == 27:
+            terminated = True
+            break
+    cap.release()
+    cv2.destroyAllWindows()
 
-            try:
-                if tipo == 1:
-                    if self.ult_men != self.MALEZA:
-			tiempo = time.time()
-                        print("Maleza detectada")
-                        self.ser.write(self.MALEZA)
-                elif tipo == 2:
-                    if self.ult_men != self.PUNTO_CALIENTE:
-			tiempo = time.time()
-                        print("Punto caliente detectado")
-                        self.ser.write(self.PUNTO_CALIENTE)
+def deteccion(lower, upper, tam_max_area):
+    global img
+    #Analisis de la imagen
+    img_hsv = cv2.cvtColor(img[200:400, 0:200], cv2.COLOR_BGR2HSV)
+    #Transformacion morfologica para detectar mejor
+    kernel_cinco = np.ones((5,5),np.uint8);
+    mascara = cv2.inRange(img_hsv, lower, upper)
+    cv2.erode(mascara,kernel_cinco,iterations = 2)
+    cv2.dilate(mascara,kernel_cinco,iterations = 2)
+    mascara = cv2.morphologyEx(mascara, cv2.MORPH_OPEN, kernel_cinco)
+    mascara = cv2.morphologyEx(mascara, cv2.MORPH_CLOSE, kernel_cinco)
 
-            except serial.SerialException:
-	               continue
+    output = cv2.bitwise_and(img[200:400, 0:200], img[200:400, 0:200], mask = mascara)
+    ret, thresh = cv2.threshold(mascara,127,255,0)
+    contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    #Busqueda del contorno mas grande, si supera un tamano establecido sera considerado punto caliente
+    if len(contours) > 0:
+        for index in range(len(contours)):
+            area = cv2.contourArea(contours[index])
+            if area >= tam_max_area:
+                if mostrar_pantalla:
+                    imag = img
+                    cv2.rectangle(imag,(0,200),(200,400),(0,255,0),3)
+                    cv2.drawContours(imag[200:400, 0:200], contours, index, (255,0,0), -1)
+                    cv2.imshow('Img-pro', imag)
+                    cv2.imshow('Procesada', output)
+                return True
+    return False
 
-	    if self.ult_men != '' and (time.time() - tiempo) > self.tiempo_sin_men:
-		self.ult_men = ''
+def proceso():
+    global tipo
+    while True:
+        time.sleep(tim)
+        if terminated:
+            break
+        if testing:
+            H_min = cv2.getTrackbarPos('H-min','Real')
+            S_min = cv2.getTrackbarPos('S-min','Real')
+            V_min = cv2.getTrackbarPos('V-min','Real')
+            lower = np.array([H_min, S_min, V_min])
 
-	    response = self.ser.readline()
-	    if len(response) > 0:
-            	self.ult_men = response
-	    	print "Arduino dice: ", response
+            H_max = cv2.getTrackbarPos('H-max','Real')
+            S_max = cv2.getTrackbarPos('S-max','Real')
+            V_max = cv2.getTrackbarPos('V-max','Real')
+            upper = np.array([H_max, S_max, V_max])
+            if(deteccion(lower, upper, __tam_defecto, img)):
+                retorno = 3
+        else:
+            maleza_detectada = deteccion(lower_maleza, upper_maleza, tam_maleza)
+            if maleza_detectada:
+                tipo = 1
+                print "Maleza"
+            else:
+                punto_caliente_detectado = deteccion(lower_punto_caliente, upper_punto_caliente, tam_punto_caliente)
+                if punto_caliente_detectado:
+                    tipo = 2
+                    print "Punto caliente"
+                else:
+                    tipo = 0
 
-            if self.mostrar_pantalla:
-                cv2.rectangle(img,(0,200),(200,400),(0,255,0),3)
-                cv2.imshow('Real', img)
-                cv2.imshow('Procesada', self.vis.output)
+def serial_listener():
+    time.sleep(tim)
+    while True:
+        if terminated:
+            break
+        if tipo == 1:
+            print "Maleza"
+        elif tipo == 2:
+            print "Punto caliente"
+        #else:
+        #    print "Nada"
 
-            ch = cv2.waitKey(50)
-            if ch == 27:
-                break
-        cap.release()
-        cv2.destroyAllWindows()
+hilo_captura = Thread( target=captura)
+hilo_proceso = Thread( target=proceso)
+#hilo_serial  = Thread( target=serial_listener)
 
-motor = engine(0, True, False)
-motor.control()
+
+hilo_captura.start()
+hilo_proceso.start()
+#hilo_serial.start()
