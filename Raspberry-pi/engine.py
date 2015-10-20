@@ -47,7 +47,11 @@ upper_punto_caliente   = np.array([punto_caliente[H][max], punto_caliente[S][max
 
 testing                = False
 tipo                   = 0
-tim = 1/30
+tim                    = 1/30
+PUNTO_CALIENTE    = "<D:P>"
+MALEZA            = "<D:M>"
+AVANZA            = "<A>"
+ult_men           = ''
 def captura():
     global img, cap, terminated
     if mostrar_pantalla:
@@ -119,26 +123,42 @@ def proceso():
             maleza_detectada = deteccion(lower_maleza, upper_maleza, tam_maleza)
             if maleza_detectada:
                 tipo = 1
-                print "Maleza"
             else:
                 punto_caliente_detectado = deteccion(lower_punto_caliente, upper_punto_caliente, tam_punto_caliente)
                 if punto_caliente_detectado:
                     tipo = 2
-                    print "Punto caliente"
                 else:
                     tipo = 0
 
 def serial_listener():
-    time.sleep(tim)
+
     while True:
+        time.sleep(tim)
         if terminated:
             break
-        if tipo == 1:
-            print "Maleza"
-        elif tipo == 2:
-            print "Punto caliente"
-        #else:
-        #    print "Nada"
+        try:
+            if tipo == 1:
+                if ult_men != MALEZA:
+                    tiempo = time.time()
+                    print("Maleza detectada")
+                    ser.write(MALEZA)
+            elif tipo == 2:
+                if ult_men != PUNTO_CALIENTE:
+                    tiempo = time.time()
+                    print("Punto caliente detectado")
+                    ser.write(PUNTO_CALIENTE)
+
+        except serial.SerialException:
+               continue
+
+        if ult_men != '' and (time.time() - tiempo) > tiempo_sin_men:
+            ult_men = ''
+
+        response = self.ser.readline()
+	    if len(response) > 0:
+            ult_men = response
+	    	print "Arduino dice: ", response
+
 
 hilo_captura = Thread( target=captura)
 hilo_proceso = Thread( target=proceso)
