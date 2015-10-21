@@ -16,7 +16,7 @@ terminated             = False
 tam_punto_caliente     = 1000
 tam_maleza             = 1500
 tam_defecto            = 1000
-mostrar_pantalla       = False
+mostrar_pantalla       = True
 H                      = 0;
 S                      = 1;
 V                      = 2;
@@ -47,6 +47,7 @@ upper_punto_caliente   = np.array([punto_caliente[H][max], punto_caliente[S][max
 
 testing                = False
 tipo                   = 0
+activar_tiempo_espera  = True #Activa o desactiva tiempo de espera en while True
 tim                    = 1/30 #tiempo de espera en while True:
 tiempo 		       = 0 #tiempo en el que se hace envio de info a ard
 PUNTO_CALIENTE         = "<D:P>"
@@ -54,32 +55,15 @@ MALEZA                 = "<D:M>"
 AVANZA                 = "<A>"
 ult_men                = ''
 ser 	               = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
-tiempo_sin_men	       = 10 #Intervalo en que no se envia mensaje
+tiempo_sin_men	       = 3 #Intervalo en que no se envia mensaje
 tiempo_revision        = 2 #Tiempo que dura la revision
 cont_evento            = -1 #Si el evento se detecta 10 veces se envia
 cont_maleza            = 0
 cont_punto_c           = 0
 cont                   = 0
 
-def captura():
-    global img, cap, terminated
-    if mostrar_pantalla:
-        cv2.namedWindow('Real')
-        cv2.namedWindow('Img-pro')
-        cv2.namedWindow('Procesada')
-    while True:
-        time.sleep(tim)
-        ret, img = cap.read()
-        img = img[0:600, 300:500]
-        if mostrar_pantalla:
-            cv2.imshow('Real', img)
 
-        ch = cv2.waitKey(100)
-        if ch == 27:
-            terminated = True
-            break
-    cap.release()
-    cv2.destroyAllWindows()
+
 
 def deteccion(lower, upper, tam_max_area):
     global img
@@ -157,17 +141,21 @@ def serial_listener():
         if t_act - t_ini > tiempo_revision:	
              t_ini = time.time()
       	     try:
-	         if 100*cont_maleza/(cont + cont_punto_c + cont_maleza) >= 70:
+	         if cont_maleza > cont_punto_c:
 		     if ult_men != MALEZA:
 			 print "Maleza detectada"
 	                 tiempo = time.time()
 	                 ser.write(MALEZA)
-	         elif 100*cont_punto_c/(cont + cont_punto_c + cont_maleza) >= 70:
+	         elif cont_punto_c > cont_maleza:
 		     if ult_men != PUNTO_CALIENTE:
 			 print "Punto caliente detectado"
 	                 tiempo = time.time()
 	                 ser.write(PUNTO_CALIENTE)
+		 elif cont > 0:
+			 print "Nada en el cable"
+			 ser.write(AVANZA)
              except serial.SerialException:
+		       print "Error en el envio"
                        continue
              cont_maleza  = 0
              cont_punto_c = 0
@@ -181,12 +169,33 @@ def serial_listener():
             ult_men = response
 	    print "Arduino dice: ", response
 
-
-hilo_captura = Thread( target=captura)
 hilo_proceso = Thread( target=proceso)
 hilo_serial  = Thread( target=serial_listener)
+hilo_proceso.daemon = True
+hilo_serial.daemon  = True
+
+def captura():
+    global img, cap, terminated
+    if mostrar_pantalla:
+        cv2.namedWindow('Real')
+        cv2.namedWindow('Img-pro')
+        cv2.namedWindow('Procesada')
+    hilo_proceso.start()
+    hilo_serial.start()
+
+    while True:
+        time.sleep(tim)
+        ret, img = cap.read()
+        img = img[0:600, 300:500]
+        if mostrar_pantalla:
+            cv2.imshow('Real', img)
+
+        ch = cv2.waitKey(100)
+        if ch == 27:
+            terminated = True
+            break
+    cap.release()
+    cv2.destroyAllWindows()
 
 
-hilo_captura.start()
-hilo_proceso.start()
-hilo_serial.start()
+captura()
