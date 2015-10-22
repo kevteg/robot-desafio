@@ -43,10 +43,12 @@ robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
 void robot::engine::inicializar(){
   /*El robot estará detenido al principio*/
   //pantalla.iniciar(); //La pantalla está inicializada pero aún no se implementa
+
   Serial.begin(baudios);
   distancia_recorrida = 0;
-  pantalla.iniciar();
   cambiarEstado(e_detener, e_standby);
+  pantalla.iniciar();
+  pantalla.apagar();
 }
 
 void robot::engine::run(){
@@ -64,7 +66,10 @@ void robot::engine::run(){
     distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
     //tiempo_actual = millis();
     //tiempo_transcurrido = tiempo_actual - tiempo_inicio;
-    Serial.println(distancia_al_suelo);
+    if(DEBUG){
+      Serial.print("Distancia al suelo: ");
+      Serial.println(distancia_al_suelo);
+    }
     //if(tiempo_transcurrido > t_espera_verificacion*segundo) //Debido a que este sensor se comporta extraño
       if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, e_maleza);
@@ -106,24 +111,28 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
   estado_robot = estado;
   switch(estado){
     case e_detener:{
-      Serial.println("Entro");
+      if(DEBUG)
+        Serial.println("Detener por:");
       detener();
       tiempo_inicio = millis();
       parametro_robot = parametro;
-      //mostrarPantalla(parametro, distancia_recorrida);
+      mostrarPantalla(parametro, distancia_recorrida);
       switch (parametro) {
         case e_maleza:
-         Serial.println("Maleza");
+          if(DEBUG)
+            Serial.println("Maleza");
           tiempo_detenido = t_maleza;
           cambioLed(LED_MALEZA, true);
         break;
         case e_punto_caliente:
-        Serial.println("Maleza");
+          if(DEBUG)
+            Serial.println("Punto Caliente");
           tiempo_detenido = t_punto_caliente;
           cambioLed(LED_PUNTO_CALIENTE, true);
         break;
         case e_limpiar:{
-          Serial.println("Limpiar");
+          if(DEBUG)
+            Serial.println("Limpiar");
           tiempo_detenido = t_limpieza;
           cambioLed(LED_MALEZA, true);
           if(limpieza <= max_limpieza)
@@ -134,9 +143,11 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
           }
         }
         break;
-        //Los parámetros standyby e inicio_salida no requieren de medir tiempo ni nada
+        //Los parámetros standyby e inicio_salida no requieren medir tiempo ni nada
         //por ello sólo no hay una sección para ellos aquí
         default:
+          if(DEBUG)
+            Serial.println("Inicio/standby");
           cambioLed(LED_MALEZA, false);
           cambioLed(LED_PUNTO_CALIENTE, false);
           parametro_robot = e_standby;
@@ -157,8 +168,7 @@ void robot::engine::cambiarEstado(estado_r estado){
   switch(estado){
     case e_avanzar:{
       tiempo_inicio = millis();
-      //pantalla.apagar();
-      //mostrarPantalla(e_maleza, 55);
+      pantalla.apagar();
       cambioLed(LED_MALEZA, false);
       cambioLed(LED_PUNTO_CALIENTE, false);
       avanzar();
@@ -171,24 +181,22 @@ void robot::engine::cambiarEstado(estado_r estado){
 }
 void robot::engine::mostrarPantalla(parametro_r parametro, int distancia){
   char *texto[2];
-  strcpy(texto[0], nombre_robot);
   switch (parametro) {
     case e_maleza:
-      strcpy(texto[0], " Maleza");
+      texto[0] = "Heimdal: ";
+      texto[1] = "Maleza";
     break;
     case e_punto_caliente:
-      strcpy(texto[0], " Punto C");
+      texto[0] = "Heimdal: ";
+      texto[1] = "Punto Caliente";
     break;
     case e_limpiar:
-      strcpy(texto[0], " Limpiar");
-    break;
-    default:
-      strcpy(texto[0], " Espera");
+      texto[0] = "Heimdal: ";
+      texto[1] = "Limpieza";
     break;
   }
-  strcpy(texto[1], "Distancia: ");
-  //Serial.println(texto[])
-  pantalla.mostrar(texto, false);
+
+  pantalla.mostrar(texto);
 }
 robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
   /*Sólo estan los parámetros que tienen versión CHAR (Los que envia la rpi como parámetro)*/

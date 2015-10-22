@@ -27,7 +27,7 @@
            * @param texto: texto a mostrar por pantalla
            *        blinking: Para que el mensaje titile hasta que se envie otra cosa
 					 */
-          void mostrar(char **texto, bool blinking);
+          void mostrar(char **texto);
 					void apagar();
 			};
 

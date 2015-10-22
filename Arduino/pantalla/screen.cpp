@@ -5,17 +5,13 @@ void robot::screen::iniciar(){
 	lcd.backlight();
 }
 
-void robot::screen::mostrar(char **texto, bool blinking){
+void robot::screen::mostrar(char **texto){
   lcd.display();
   lcd.clear();
   for(int i = 0; i < numero_lineas; i++){
     lcd.setCursor(0, i);
     lcd.print(texto[i]);
   }
-  if(blinking)
-    lcd.blink();
-  else
-    lcd.noBlink();
 }
 void robot::screen::apagar(){
   lcd.noDisplay();

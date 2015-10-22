@@ -27,7 +27,7 @@
 #include "promedio.h"
 
 /*Definiciones*/
-#define MUY_CERCA                 5   //Si se supera esta distancia es maleza al suelo
+#define MUY_CERCA                 20   //Si se supera esta distancia es maleza al suelo
 #define max_distancia_ultrasonido 100  //Máxima distancia por defecto del ultrasonido en cm
 #define t_punto_caliente          10   //Tiempo de espera para punto caliente
 #define t_maleza                  10   //Tiempo por el que estará detenido
@@ -56,6 +56,7 @@
 #define MOTOR_AVANCE               1   //Posición del motor de avance en el vector de motores
 #define velocidad_0                0   //Velocidad cero de avance
 #define nombre_robot               "Heimdal"
+#define DEBUG                      true
 namespace robot{
     class engine{
 		private:

@@ -31,7 +31,7 @@
 //Sensor ultrasonido
 #define _trigger_pin              14
 #define _echo_pin                 19
-#define _max_distan_us            5 //Distancia de maleza al suelo
+#define _max_distan_us            30 //Distancia de maleza al suelo
 //Leds
 #define _led_maleza               5
 #define _led_punto_caliente       6
@@ -46,11 +46,13 @@ engine Robot(_pin_motor_limpieza, _pin_dir_motor_avance, _steps_per_round, _pin_
             _trigger_pin, _echo_pin, _max_distan_us, 
             _led_maleza, _led_punto_caliente, _led_iluminacion,
             _screen_adr, _screen_colms, _screen_rows);
+        
+screen pantalla(_screen_adr, _screen_colms, _screen_rows);
 
 void setup() {
   Robot.inicializar();
 }
 
-void loop() {
+void loop(){
   Robot.run();
 }
