@@ -1,38 +1,37 @@
 #include "motor_step.h"
 
-robot::motor_step::motor_step(int steps_per_round, int pin_step, int pin_dir){
-  this->steps_per_round = steps_per_round;
-  this->pin_dir  = pin_dir;
-  this->pin_step = pin_step;
-  pinMode(pin_step, OUTPUT);
-  pinMode(pin_dir, OUTPUT);
-  digitalWrite(pin_step, LOW);
-  digitalWrite(pin_dir, LOW);
-  setSpeed(0);
+robot::motor_step::motor_step(int steps_per_revolution, int motor_pin_1, int motor_pin_2, int motor_pin_3, int motor_pin_4, int speed) :
+motor_pin_1(motor_pin_1),
+motor_pin_2(motor_pin_2),
+motor_pin_3(motor_pin_3),
+motor_pin_4(motor_pin_4),
+steps_per_revolution(steps_per_revolution),
+speed(speed),
+step_m(steps_per_revolution, motor_pin_1, motor_pin_2, motor_pin_3, motor_pin_4){
+
+  setSpeed(this->speed);
 }
 
+/**
+ * @brief Cambiar la velocidad actual del motor
+ * @param speed: nueva velocidad
+ */
 void robot::motor_step::setSpeed(int speed){
   this->speed = speed;
-  digitalWrite(pin_dir, (this->speed)?HIGH:LOW);
+  step_m.setSpeed(this->speed);
 }
-
-void robot::motor_step::individualStep(){
-  digitalWrite(pin_step, HIGH);
-  sleep();
-  digitalWrite(pin_step, LOW);
-  sleep();
+/**
+ * @brief Un paso individual,
+ *  se llama en el tiempo en el engine del robot
+ */
+void robot::motor_step::individualStep(bool dir){
+  //+- 1
+  step_m.step((dir?1:-1)*this->steps_per_revolution);
 }
-
-void robot::motor_step::sleep(){
-  //Serial.println("sleep");
-  long hold_time_us = (long)(1.0 / (double) steps_per_round / speed / 2.0 * 1E6);
-  int overflow_count = hold_time_us / 65535;
-  for (int i = 0; i < overflow_count; i++)
-    delayMicroseconds(65535);
-
-  delayMicroseconds((unsigned int) hold_time_us);
-}
-
+/*
+ * @brief Obtener la velocidad actual.
+ * @return velocidad actual
+ */
 inline int robot::motor_step::getSpeed(){
   return this->speed;
 }

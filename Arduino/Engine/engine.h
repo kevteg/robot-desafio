@@ -118,12 +118,12 @@ namespace robot{
        *      screen_colms: Columnas de pantalla
        *      screen_rows: Filas de pantalla
 			 */
-			engine(int pin_motor_limpieza, int pin_dir_motor_avance,
-             int steps_per_round,  int pin_step_motor_avance,
-             int velocidad_motor_avance, int velocidad_motor_limpieza,
-             int trigger_pin, int echo_pin, int max_distan_us,
-             int led_maleza, int led_punto_caliente, int led_iluminacion,
-             int screen_adrs, int screen_colms, int screen_rows);
+			engine(int pin_motor_limpieza,     int velocidad_motor_limpieza,
+             int steps_per_revolution,   int motor_pin_1,  int motor_pin_2,
+             int motor_pin_3,            int motor_pin_4,  int velocidad_motor_avance,
+             int trigger_pin,            int echo_pin,
+             int max_distan_us,          int led_maleza,   int led_punto_caliente, int led_iluminacion,
+             int screen_adrs,            int screen_colms, int screen_rows);
 
       /**
       * @brief Interpretar los comandos que se reciben para cambiar el estado del robot
