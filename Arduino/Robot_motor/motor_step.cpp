@@ -26,7 +26,7 @@ void robot::motor_step::setSpeed(int speed){
  */
 void robot::motor_step::individualStep(bool dir){
   //+- 1
-  step_m.step((dir?1:-1)*this->steps_per_revolution);
+  step_m.step((dir?1:-1));
 }
 /*
  * @brief Obtener la velocidad actual.
