@@ -1,8 +1,8 @@
 #include "engine.h"
 
-robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
-                      int steps_per_round,        int pin_step_motor_avance,
-                      int velocidad_motor_avance, int velocidad_motor_limpieza,
+robot::engine::engine(int pin_motor_limpieza,     int velocidad_motor_limpieza,
+                      int steps_per_revolution,   int motor_pin_1,  int motor_pin_2,
+              				int motor_pin_3,            int motor_pin_4,  int velocidad_motor_avance,
                       int trigger_pin,            int echo_pin,
                       int max_distan_us,          int led_maleza,   int led_punto_caliente, int led_iluminacion,
                       int screen_adrs,            int screen_colms, int screen_rows) :
@@ -21,7 +21,7 @@ robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
 
     motores                         = new motor*[n_motores];
     motores[MOTOR_LIMPIEZA]         = new motor_adafruit(pin_motor_limpieza);
-    motores[MOTOR_AVANCE]           = new motor_step(steps_per_round, pin_step_motor_avance, pin_dir_motor_avance);
+    motores[MOTOR_AVANCE]           = new motor_step(steps_per_revolution, motor_pin_1, motor_pin_2, motor_pin_3, motor_pin_4, velocidad_motor_avance);
     this->velocidad_motor_limpieza  = velocidad_motor_limpieza;
     this->velocidad_motor_avance    = velocidad_motor_avance;
 
@@ -43,13 +43,10 @@ robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
 
 void robot::engine::inicializar(){
   /*El robot estará detenido al principio*/
-  //pantalla.iniciar(); //La pantalla está inicializada pero aún no se implementa
-
   Serial.begin(baudios);
   distancia_recorrida = 0;
   cambiarEstado(e_detener, e_standby);
   pantalla.iniciar();
-  pantalla.apagar();
 }
 
 void robot::engine::run(){
@@ -57,32 +54,25 @@ void robot::engine::run(){
   unsigned long tiempo_transcurrido, tiempo_transcurrido_e;
   int distancia_al_suelo;
 
-  //Serial.println(distancia_al_suelo);
+  if(avanzando)
+    (static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep(true);
 
-
-
- //if(avanzando)
-    //(static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep();
   escuchar();
   if(!escuchando){
     tiempo_actual_e = millis();
     tiempo_transcurrido_e = tiempo_actual_e - tiempo_inicio_e;
-    Serial.print("T: ");
-    Serial.println(tiempo_transcurrido_e);
     if(tiempo_transcurrido_e >= tiempo_no_escuchando*segundo)
       escuchando = true;
   }
 
-
   switch(estado_robot){
     case e_avanzar:
     distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
-    //
     //tiempo_transcurrido = tiempo_actual - tiempo_inicio;
-    /*if(DEBUG){
+    if(DEBUG){
       Serial.print("Distancia al suelo: ");
       Serial.println(distancia_al_suelo);
-    }*/
+    }
     //if(tiempo_transcurrido > t_espera_verificacion*segundo) //Debido a que este sensor se comporta extraño
       if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, e_maleza);
@@ -265,9 +255,6 @@ void robot::engine::detener(){
 
 void robot::engine::avanzar(){
   avanzando = true;
-
-  (motores[MOTOR_LIMPIEZA])->setSpeed(velocidad_0);
-  /* Arrancar motor de avance */
 }
 
 void robot::engine::escuchar(){
