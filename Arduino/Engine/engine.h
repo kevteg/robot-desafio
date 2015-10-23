@@ -33,6 +33,7 @@
 #define t_maleza                  10   //Tiempo por el que estará detenido
 #define t_limpieza                5   //Tiempo por el que estará limpiando
 #define t_espera_verificacion     2   //Tiempo de espera de verificación
+#define tiempo_por_paso           0.5   //Tiempo de espera de verificación
 #define segundo                   1000 //Segundos en milisegundos
 #define numero_leds               3    //Número de leds del robot por defecto
 #define baudios                   9600 //Baudios de la comunicación serial
@@ -66,9 +67,9 @@ namespace robot{
       int                       *leds;
       bool                      *_led_encendido;                    //Variable que indica si esta o no un led encendido
 			unsigned long             tiempo_inicio;                      //Tiempo de inicio para verificar las rutinas
-      unsigned long             tiempo_inicio_e;                      //Tiempo de inicio para verificar cuando se oye a la rpi
+      unsigned long             tiempo_inicio_e;                    //Tiempo de inicio para verificar cuando se oye a la rpi
+      unsigned long             tiempo_inicio_m;                //Tiempo de inicio para verificar cuando se oye a la rpi
       String                    comando;                            //Comandos que llegan al robot
-      String                    comando_anterior;
       int                       limpieza;                           //Variable que cuenta el número de veces que se ha limpiado
                                                                     //Debe reiniciarse cada vez que se llega al máximo de número de limpieza
       int                       pin_motor_limpieza;
@@ -77,12 +78,10 @@ namespace robot{
       int                       velocidad_motor_avance;
       int                       velocidad_motor_limpieza;
       bool                      avanzando;
-      motor**                   motores;                           //Motores del robot
+      motor**                   motores;                            //Motores del robot
       screen                    pantalla;
       bool                      escuchando;
       int                       tiempo_no_escuchando;
-
-
 
     protected:
       /*Protegidos para que la misma clase pueda tener métodos que retornen el tipo*/

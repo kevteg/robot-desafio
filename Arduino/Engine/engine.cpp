@@ -50,12 +50,20 @@ void robot::engine::inicializar(){
 }
 
 void robot::engine::run(){
-  unsigned long tiempo_actual, tiempo_actual_e;
-  unsigned long tiempo_transcurrido, tiempo_transcurrido_e;
+  unsigned long tiempo_actual, tiempo_actual_e, tiempo_actual_m;
+  unsigned long tiempo_transcurrido, tiempo_transcurrido_e, tiempo_transcurrido_m;
   int distancia_al_suelo;
 
-  if(avanzando)
-    (static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep(true);
+  if(avanzando){
+    tiempo_actual_m = millis();
+    tiempo_transcurrido_m = tiempo_actual_m - tiempo_inicio_m;
+    if(tiempo_transcurrido_m >= tiempo_por_paso*segundo){
+      if(DEBUG)
+        Serial.println("Paso");
+      tiempo_inicio_m = millis();
+      (static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep(true);
+    }
+  }
 
   escuchar();
   if(!escuchando){
@@ -69,10 +77,10 @@ void robot::engine::run(){
     case e_avanzar:
     distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
     //tiempo_transcurrido = tiempo_actual - tiempo_inicio;
-    if(DEBUG){
+    /*if(DEBUG){
       Serial.print("Distancia al suelo: ");
       Serial.println(distancia_al_suelo);
-    }
+    }*/
     //if(tiempo_transcurrido > t_espera_verificacion*segundo) //Debido a que este sensor se comporta extraño
       if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, e_maleza);
@@ -128,7 +136,6 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
           if(DEBUG)
             Serial.println("Maleza");
           tiempo_detenido = t_maleza;
-
           tiempo_no_escuchando   = t_maleza + t_sin_escuchar;
           cambioLed(LED_MALEZA, true);
         break;
@@ -143,11 +150,19 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
           if(DEBUG)
             Serial.println("Limpiar");
           tiempo_detenido = t_limpieza;
-          tiempo_no_escuchando   = t_limpieza;
           cambioLed(LED_MALEZA, true);
-          if(limpieza <= max_limpieza)
+          if(limpieza < max_limpieza){
+            if(DEBUG){
+              Serial.print("Limpieza número: ");
+              Serial.println(limpieza + 1);
+            }
+            tiempo_no_escuchando = t_limpieza;
             limpiarMaleza();
-          else{
+          }else{
+            if(DEBUG)
+              Serial.println("No se limpia mas");
+
+            tiempo_no_escuchando   = t_sin_escuchar;
             limpieza = 0;
             cambiarEstado(e_avanzar);
           }
@@ -161,6 +176,7 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
             Serial.println("Inicio/standby");
           cambioLed(LED_MALEZA, false);
           cambioLed(LED_PUNTO_CALIENTE, false);
+          pantalla.apagar();
           parametro_robot = e_standby;
         break;
       }
@@ -255,6 +271,7 @@ void robot::engine::detener(){
 
 void robot::engine::avanzar(){
   avanzando = true;
+  limpieza = 0;
 }
 
 void robot::engine::escuchar(){
