@@ -16,8 +16,9 @@
 			class screen{
       private:
         LiquidCrystal_I2C lcd;
+				char *text_ini;
 				public:
-          screen(uint8_t address, uint8_t cols, uint8_t rows);
+          screen(uint8_t address, uint8_t cols, uint8_t rows, char *texto_ini);
 					/**
 					 * @brief Iniciar pantalla
 					 */

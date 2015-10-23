@@ -1,3 +1,4 @@
+
 /*Motor*/
 #include <AFMotor.h>
 #include <motor.h>
@@ -46,8 +47,6 @@ engine Robot(_pin_motor_limpieza, _pin_dir_motor_avance, _steps_per_round, _pin_
             _trigger_pin, _echo_pin, _max_distan_us, 
             _led_maleza, _led_punto_caliente, _led_iluminacion,
             _screen_adr, _screen_colms, _screen_rows);
-        
-screen pantalla(_screen_adr, _screen_colms, _screen_rows);
 
 void setup() {
   Robot.inicializar();

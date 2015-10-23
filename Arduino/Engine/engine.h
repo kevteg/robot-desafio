@@ -55,7 +55,7 @@
 #define MOTOR_LIMPIEZA             0   //Posición del motor de limpieza en el vector de motores
 #define MOTOR_AVANCE               1   //Posición del motor de avance en el vector de motores
 #define velocidad_0                0   //Velocidad cero de avance
-#define nombre_robot               "Heimdal"
+#define texto_ini_pantalla         "Heimdal: "
 #define DEBUG                      true
 namespace robot{
     class engine{
@@ -66,6 +66,7 @@ namespace robot{
       bool                      *_led_encendido;                    //Variable que indica si esta o no un led encendido
 			unsigned long             tiempo_inicio;                      //Tiempo de inicio para verificar las rutinas
       String                    comando;                            //Comandos que llegan al robot
+      String                    comando_anterior;
       int                       limpieza;                           //Variable que cuenta el número de veces que se ha limpiado
                                                                     //Debe reiniciarse cada vez que se llega al máximo de número de limpieza
       int                       pin_motor_limpieza;
@@ -76,6 +77,7 @@ namespace robot{
       bool                      avanzando;
       motor**                   motores;                           //Motores del robot
       screen                    pantalla;
+
 
 
     protected:

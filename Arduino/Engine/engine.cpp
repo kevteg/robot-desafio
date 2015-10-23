@@ -8,7 +8,7 @@ robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
                       int screen_adrs,            int screen_colms, int screen_rows) :
                       sensor_ultra(trigger_pin, echo_pin, max_distan_us),
                       promedio_distancia(max_distan_us),
-                      pantalla(screen_adrs, screen_colms, screen_rows){
+                      pantalla(screen_adrs, screen_colms, screen_rows, texto_ini_pantalla){
   /**Aquí se deben llamar directamente a los constructores de:
     *Motor avance (Listo)
     *Motor de limpieza (Listo)
@@ -116,6 +116,7 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
       detener();
       tiempo_inicio = millis();
       parametro_robot = parametro;
+      distancia_recorrida = 101;
       mostrarPantalla(parametro, distancia_recorrida);
       switch (parametro) {
         case e_maleza:
@@ -181,17 +182,19 @@ void robot::engine::cambiarEstado(estado_r estado){
 }
 void robot::engine::mostrarPantalla(parametro_r parametro, int distancia){
   char *texto[2];
+  char dist_char[7];
+  String aux_str(distancia);
+  aux_str = aux_str + " cm";
+  aux_str.toCharArray(dist_char, 7);
+  texto[0] = dist_char;
   switch (parametro) {
     case e_maleza:
-      texto[0] = "Heimdal: ";
       texto[1] = "Maleza";
     break;
     case e_punto_caliente:
-      texto[0] = "Heimdal: ";
       texto[1] = "Punto Caliente";
     break;
     case e_limpiar:
-      texto[0] = "Heimdal: ";
       texto[1] = "Limpieza";
     break;
   }
