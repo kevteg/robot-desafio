@@ -57,6 +57,7 @@
 #define velocidad_0                0   //Velocidad cero de avance
 #define texto_ini_pantalla         "Heimdal: "
 #define DEBUG                      true
+#define t_sin_escuchar             2
 namespace robot{
     class engine{
 		private:
@@ -65,6 +66,7 @@ namespace robot{
       int                       *leds;
       bool                      *_led_encendido;                    //Variable que indica si esta o no un led encendido
 			unsigned long             tiempo_inicio;                      //Tiempo de inicio para verificar las rutinas
+      unsigned long             tiempo_inicio_e;                      //Tiempo de inicio para verificar cuando se oye a la rpi
       String                    comando;                            //Comandos que llegan al robot
       String                    comando_anterior;
       int                       limpieza;                           //Variable que cuenta el número de veces que se ha limpiado
@@ -77,6 +79,8 @@ namespace robot{
       bool                      avanzando;
       motor**                   motores;                           //Motores del robot
       screen                    pantalla;
+      bool                      escuchando;
+      int                       tiempo_no_escuchando;
 
 
 

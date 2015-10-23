@@ -38,6 +38,7 @@ robot::engine::engine(int pin_motor_limpieza,     int pin_dir_motor_avance,
     for(int i = 0; i < numero_leds; i++)
       cambioLed(i, (i < numero_leds - 1)?false:true);
     tiempo_inicio = 0;
+    escuchando = true;
 }
 
 void robot::engine::inicializar(){
@@ -52,24 +53,36 @@ void robot::engine::inicializar(){
 }
 
 void robot::engine::run(){
-  unsigned long tiempo_actual;
-  unsigned long tiempo_transcurrido;
+  unsigned long tiempo_actual, tiempo_actual_e;
+  unsigned long tiempo_transcurrido, tiempo_transcurrido_e;
   int distancia_al_suelo;
 
   //Serial.println(distancia_al_suelo);
+
+
+
  //if(avanzando)
     //(static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep();
   escuchar();
+  if(!escuchando){
+    tiempo_actual_e = millis();
+    tiempo_transcurrido_e = tiempo_actual_e - tiempo_inicio_e;
+    Serial.print("T: ");
+    Serial.println(tiempo_transcurrido_e);
+    if(tiempo_transcurrido_e >= tiempo_no_escuchando*segundo)
+      escuchando = true;
+  }
+
 
   switch(estado_robot){
     case e_avanzar:
     distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
-    //tiempo_actual = millis();
+    //
     //tiempo_transcurrido = tiempo_actual - tiempo_inicio;
-    if(DEBUG){
+    /*if(DEBUG){
       Serial.print("Distancia al suelo: ");
       Serial.println(distancia_al_suelo);
-    }
+    }*/
     //if(tiempo_transcurrido > t_espera_verificacion*segundo) //Debido a que este sensor se comporta extraño
       if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, e_maleza);
@@ -95,6 +108,7 @@ void robot::engine::run(){
 }
 
 void robot::engine::ejecutarComando(String comando){
+    Serial.println(comando); //Para confirmar la llegada del comando
     switch(comando[1]){
       case DETENER:
         cambiarEstado(conversorCharEstado(comando[1]), conversorCharParametro(comando[3])); //Comando[3] contiene la razón por la cual se está deteniendo
@@ -114,27 +128,32 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
       if(DEBUG)
         Serial.println("Detener por:");
       detener();
+      escuchando = false;
       tiempo_inicio = millis();
+      tiempo_inicio_e = tiempo_inicio;
       parametro_robot = parametro;
-      distancia_recorrida = 101;
       mostrarPantalla(parametro, distancia_recorrida);
       switch (parametro) {
         case e_maleza:
           if(DEBUG)
             Serial.println("Maleza");
           tiempo_detenido = t_maleza;
+
+          tiempo_no_escuchando   = t_maleza + t_sin_escuchar;
           cambioLed(LED_MALEZA, true);
         break;
         case e_punto_caliente:
           if(DEBUG)
             Serial.println("Punto Caliente");
           tiempo_detenido = t_punto_caliente;
+          tiempo_no_escuchando   = t_punto_caliente + t_sin_escuchar;
           cambioLed(LED_PUNTO_CALIENTE, true);
         break;
         case e_limpiar:{
           if(DEBUG)
             Serial.println("Limpiar");
           tiempo_detenido = t_limpieza;
+          tiempo_no_escuchando   = t_limpieza;
           cambioLed(LED_MALEZA, true);
           if(limpieza <= max_limpieza)
             limpiarMaleza();
@@ -147,6 +166,7 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
         //Los parámetros standyby e inicio_salida no requieren medir tiempo ni nada
         //por ello sólo no hay una sección para ellos aquí
         default:
+          escuchando = true;
           if(DEBUG)
             Serial.println("Inicio/standby");
           cambioLed(LED_MALEZA, false);
@@ -198,7 +218,6 @@ void robot::engine::mostrarPantalla(parametro_r parametro, int distancia){
       texto[1] = "Limpieza";
     break;
   }
-
   pantalla.mostrar(texto);
 }
 robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
@@ -264,7 +283,8 @@ void robot::engine::escuchar(){
     comando += c;
   }
   if(comando.length() > 0 && comando[0] == DELIMITADOR_I && comando[comando.length() -1 ] == DELIMITADOR_F){
-    ejecutarComando(comando);
+    if(escuchando)
+      ejecutarComando(comando);
     comando = "";
   }
 }
