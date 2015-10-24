@@ -2,6 +2,7 @@ from threading import Thread
 import time
 import sys
 import serial
+
 sys.path.append('/usr/local/lib/python2.7/site-packages')
 import cv2
 import numpy as np
@@ -49,11 +50,12 @@ testing                = False
 tipo                   = 0
 activar_tiempo_espera  = True #Activa o desactiva tiempo de espera en while True
 tim                    = 1/30 #tiempo de espera en while True:
-tiempo 		       = 0 #tiempo en el que se hace envio de info a ard
+tiempo 		           = 0 #tiempo en el que se hace envio de info a ard
 PUNTO_CALIENTE         = "<D:P>"
 MALEZA                 = "<D:M>"
 AVANZA                 = "<A>"
 ult_men                = ''
+
 ser 	               = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
 tiempo_sin_men	       = 3 #Intervalo en que no se envia mensaje
 tiempo_revision        = 2 #Tiempo que dura la revision
@@ -138,7 +140,7 @@ def serial_listener():
             cont_punto_c += 1
         else:
             cont += 1
-        if t_act - t_ini > tiempo_revision:	
+        if t_act - t_ini > tiempo_revision:
              t_ini = time.time()
       	     try:
 	         if cont_maleza > cont_punto_c:

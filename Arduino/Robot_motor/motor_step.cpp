@@ -8,7 +8,6 @@ motor_pin_4(motor_pin_4),
 steps_per_revolution(steps_per_revolution),
 speed(speed),
 step_m(steps_per_revolution, motor_pin_1, motor_pin_2, motor_pin_3, motor_pin_4){
-
   setSpeed(this->speed);
 }
 
@@ -18,15 +17,15 @@ step_m(steps_per_revolution, motor_pin_1, motor_pin_2, motor_pin_3, motor_pin_4)
  */
 void robot::motor_step::setSpeed(int speed){
   this->speed = speed;
-  step_m.setSpeed(this->speed);
 }
 /**
  * @brief Un paso individual,
  *  se llama en el tiempo en el engine del robot
  */
-void robot::motor_step::individualStep(bool dir){
+void robot::motor_step::individualStep(){
   //+- 1
-  step_m.step((dir?1:-1));
+  step_m.step(this->speed);
+  Serial.println(this->speed);
 }
 /*
  * @brief Obtener la velocidad actual.

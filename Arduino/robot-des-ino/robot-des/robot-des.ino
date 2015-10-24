@@ -24,14 +24,14 @@
 //Motores:
 //Avance
 #define _steps_per_revolution     200
-#define _motor_pin_1              1
-#define _motor_pin_2              2
-#define _motor_pin_3              3
-#define _motor_pin_4              4
-#define _velocidad_motor_avance   60
+#define _motor_pin_1              8
+#define _motor_pin_2              9
+#define _motor_pin_3              10
+#define _motor_pin_4              11
+#define _velocidad_motor_avance   3 //pasos
 //Limpieza
 #define _pin_motor_limpieza       2
-#define _velocidad_motor_limpieza 255
+#define _velocidad_motor_limpieza 100
 //Sensor ultrasonido
 #define _trigger_pin              14
 #define _echo_pin                 19

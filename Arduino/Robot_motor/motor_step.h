@@ -37,9 +37,8 @@
         /**
 				 * @brief Un paso individual,
          *  se llama todo el tiempo en el engine del robot
-				 *  @param dir: true adelante, false atrás
 				 */
-        void individualStep(bool dir);
+        void individualStep();
 				/*
 				 * @brief Obtener la velocidad actual.
 				 * @return velocidad actual

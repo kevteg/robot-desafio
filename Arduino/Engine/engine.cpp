@@ -61,7 +61,7 @@ void robot::engine::run(){
       if(DEBUG)
         Serial.println("Paso");
       tiempo_inicio_m = millis();
-      (static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep(true);
+      (static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep();
     }
   }
 
