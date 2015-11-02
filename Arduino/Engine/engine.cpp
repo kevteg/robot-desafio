@@ -1,70 +1,58 @@
 #include "engine.h"
 
 robot::engine::engine(int pin_motor_limpieza,     int velocidad_motor_limpieza,
-                      int steps_per_revolution,   int motor_pin_1,  int motor_pin_2,
-              				int motor_pin_3,            int motor_pin_4,  int velocidad_motor_avance,
-                      int trigger_pin,            int echo_pin,
-                      int max_distan_us,          int led_maleza,   int led_punto_caliente, int led_iluminacion,
-                      int screen_adrs,            int screen_colms, int screen_rows) :
+                      int steps_per_revolution,   int motor_pin_1,        int motor_pin_2,
+              				int motor_pin_3,            int motor_pin_4,        int velocidad_motor_avance, //Tiempo en millis
+                      int trigger_pin,            int echo_pin,           int max_distan_us,
+                      int led_maleza,             int led_punto_caliente, int led_iluminacion,
+                      int screen_adrs,            int screen_colms,       int screen_rows) :
                       sensor_ultra(trigger_pin, echo_pin, max_distan_us),
                       promedio_distancia(max_distan_us),
-                      pantalla(screen_adrs, screen_colms, screen_rows, texto_ini_pantalla){
-  /**Aquí se deben llamar directamente a los constructores de:
-    *Motor avance (Listo)
-    *Motor de limpieza (Listo)
-    *Sensor ultrasonido (Ya se llama arriba)} (Listo)
-    *Pantalla
-    */
+                      pantalla(screen_adrs, screen_colms, screen_rows, texto_ini_pantalla),
+                      motor_limpieza(pin_motor_limpieza),
+                      motor_avance(motor_pin_1, motor_pin_2, motor_pin_3, motor_pin_4, direccion_robot, velocidad_motor_avance){
+
     /*TODO:
       Distancia recorrida desde el inicio
     */
 
-    motores                         = new motor*[n_motores];
-    motores[MOTOR_LIMPIEZA]         = new motor_adafruit(pin_motor_limpieza);
-    motores[MOTOR_AVANCE]           = new motor_step(steps_per_revolution, motor_pin_1, motor_pin_2, motor_pin_3, motor_pin_4, velocidad_motor_avance);
     this->velocidad_motor_limpieza  = velocidad_motor_limpieza;
     this->velocidad_motor_avance    = velocidad_motor_avance;
+
 
     /*Configuraciones iniciales de los leds*/
     leds = new int[numero_leds];
     this->leds[LED_MALEZA]          = led_maleza;
     this->leds[LED_PUNTO_CALIENTE]  = led_punto_caliente;
-    this->leds[LED_ILUMINACION]     = led_iluminacion;
     pinMode(this->leds[LED_MALEZA],         OUTPUT);
     pinMode(this->leds[LED_PUNTO_CALIENTE], OUTPUT);
-    pinMode(this->leds[LED_ILUMINACION],    OUTPUT);
 
     _led_encendido = new bool[numero_leds];
     for(int i = 0; i < numero_leds; i++)
-      cambioLed(i, (i < numero_leds - 1)?false:true);
+      cambioLed(i, false);
+    n_puntos_calientes = 0;
     tiempo_inicio = 0;
+    motor_avance.setDatosDistancia(209,10);
+    motor_avance.setFactorVelocidad(1);
+    motor_avance.Iniciar();
     escuchando = true;
+    paso_motor_avance = 1;
 }
 
 void robot::engine::inicializar(){
   /*El robot estará detenido al principio*/
+  pantalla.iniciar();
+
   Serial.begin(baudios);
   distancia_recorrida = 0;
   cambiarEstado(e_detener, e_standby);
-  pantalla.iniciar();
 }
 
 void robot::engine::run(){
-  unsigned long tiempo_actual, tiempo_actual_e, tiempo_actual_m;
-  unsigned long tiempo_transcurrido, tiempo_transcurrido_e, tiempo_transcurrido_m;
+
+  unsigned long tiempo_actual, tiempo_actual_e, tiempo_actual_i;
+  unsigned long tiempo_transcurrido, tiempo_transcurrido_e, tiempo_transcurrido_i;
   int distancia_al_suelo;
-
-  if(avanzando){
-    tiempo_actual_m = millis();
-    tiempo_transcurrido_m = tiempo_actual_m - tiempo_inicio_m;
-    if(tiempo_transcurrido_m >= tiempo_por_paso*segundo){
-      if(DEBUG)
-        Serial.println("Paso");
-      tiempo_inicio_m = millis();
-      (static_cast <motor_step *> (motores[MOTOR_AVANCE]))->individualStep();
-    }
-  }
-
   escuchar();
   if(!escuchando){
     tiempo_actual_e = millis();
@@ -73,34 +61,32 @@ void robot::engine::run(){
       escuchando = true;
   }
 
+
   switch(estado_robot){
     case e_avanzar:
-    distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
-    //tiempo_transcurrido = tiempo_actual - tiempo_inicio;
-    /*if(DEBUG){
-      Serial.print("Distancia al suelo: ");
-      Serial.println(distancia_al_suelo);
-    }*/
-    //if(tiempo_transcurrido > t_espera_verificacion*segundo) //Debido a que este sensor se comporta extraño
+      motor_avance.Paso(paso_motor_avanc);
+      distancia_al_suelo = promedio_distancia.add(sensor_ultra.getDistance());
+      //if(DEBUG)
+      //  Serial.println("Paso");
+
       if(distancia_al_suelo <= MUY_CERCA)
         cambiarEstado(e_detener, e_maleza);
     break;
-    /*Que este detenido o este limpiando es lo mismo*/
     case e_detener:
-      /*Sólo va a esperar un tiempo si está detenido por maleza o punto caliente*/
+
       if(parametro_robot != e_standby){
         tiempo_actual = millis();
         tiempo_transcurrido = tiempo_actual - tiempo_inicio;
         if(parametro_robot != e_standby){
           if(tiempo_transcurrido >= tiempo_detenido*segundo)
             if(parametro_robot == e_limpiar){
-              enviarMensaje((String)LIMPIAR + (String)SEPARADOR + String(limpieza));
               cambiarEstado(e_detener, e_standby);
             }else
               cambiarEstado(e_avanzar);
         }
       }
     break;
+
   }
 
 }
@@ -111,7 +97,7 @@ void robot::engine::ejecutarComando(String comando){
       case DETENER:
         cambiarEstado(conversorCharEstado(comando[1]), conversorCharParametro(comando[3])); //Comando[3] contiene la razón por la cual se está deteniendo
       break;
-      case AVANZAR:
+      default:
         cambiarEstado(conversorCharEstado(comando[1]));
       break;
     }
@@ -130,6 +116,8 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
       tiempo_inicio = millis();
       tiempo_inicio_e = tiempo_inicio;
       parametro_robot = parametro;
+      cambioLed(LED_MALEZA, false);
+      cambioLed(LED_PUNTO_CALIENTE, false);
       mostrarPantalla(parametro, distancia_recorrida);
       switch (parametro) {
         case e_maleza:
@@ -140,11 +128,16 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
           cambioLed(LED_MALEZA, true);
         break;
         case e_punto_caliente:
-          if(DEBUG)
-            Serial.println("Punto Caliente");
-          tiempo_detenido = t_punto_caliente;
+          n_puntos_calientes++;
           tiempo_no_escuchando   = t_punto_caliente + t_sin_escuchar;
-          cambioLed(LED_PUNTO_CALIENTE, true);
+          if(n_puntos_calientes > 1){
+            if(DEBUG)
+              Serial.println("Punto Caliente");
+            tiempo_detenido = t_punto_caliente;
+            cambioLed(LED_PUNTO_CALIENTE, true);
+          }else
+            cambiarEstado(e_avanzar);
+
         break;
         case e_limpiar:{
           if(DEBUG)
@@ -153,7 +146,7 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
           cambioLed(LED_MALEZA, true);
           if(limpieza < max_limpieza){
             if(DEBUG){
-              Serial.print("Limpieza número: ");
+              Serial.print("Limpieza numero: ");
               Serial.println(limpieza + 1);
             }
             tiempo_no_escuchando = t_limpieza;
@@ -173,10 +166,7 @@ void robot::engine::cambiarEstado(estado_r estado, parametro_r parametro){
         default:
           escuchando = true;
           if(DEBUG)
-            Serial.println("Inicio/standby");
-          cambioLed(LED_MALEZA, false);
-          cambioLed(LED_PUNTO_CALIENTE, false);
-          pantalla.apagar();
+            Serial.println("Standby");
           parametro_robot = e_standby;
         break;
       }
@@ -194,6 +184,7 @@ void robot::engine::cambiarEstado(estado_r estado){
   estado_robot = estado;
   switch(estado){
     case e_avanzar:{
+      parametro_robot = e_none;
       tiempo_inicio = millis();
       pantalla.apagar();
       cambioLed(LED_MALEZA, false);
@@ -223,9 +214,13 @@ void robot::engine::mostrarPantalla(parametro_r parametro, int distancia){
     case e_limpiar:
       texto[1] = "Limpieza";
     break;
+    case e_standby:
+      texto[1] = "Esperando..";
+    break;
   }
   pantalla.mostrar(texto);
 }
+
 robot::engine::estado_r robot::engine::conversorCharEstado(char estado){
   /*Sólo estan los parámetros que tienen versión CHAR (Los que envia la rpi como parámetro)*/
   switch(estado){
@@ -257,20 +252,19 @@ robot::engine::parametro_r robot::engine::conversorCharParametro(char estado){
 }
 
 void robot::engine::limpiarMaleza(){
-  motores[MOTOR_LIMPIEZA]->setSpeed(velocidad_motor_limpieza);
+  motor_limpieza.setSpeed(-velocidad_motor_limpieza);
   limpieza++;
 }
 
 void robot::engine::detener(){
  //distancia_recorrida = nueva_distancia
  /*Detener motor de avance */
- avanzando = false;
- motores[MOTOR_LIMPIEZA]->setSpeed(velocidad_0);
-
+ paso_motor_avance = 0;
+ motor_limpieza.setSpeed(velocidad_0);
 }
 
 void robot::engine::avanzar(){
-  avanzando = true;
+  paso_motor_avance = 1;
   limpieza = 0;
 }
 

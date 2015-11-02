@@ -4,7 +4,7 @@
 #include <Stepper.h>
 #include <motor.h>
 #include <motor_adafruit.h>
-#include <motor_step.h>
+#include <MotorHS.h>
 
 /*Sensor ultrasonido*/
 #include <NewPing.h>
@@ -24,22 +24,22 @@
 //Motores:
 //Avance
 #define _steps_per_revolution     200
-#define _motor_pin_1              8
-#define _motor_pin_2              9
-#define _motor_pin_3              10
-#define _motor_pin_4              11
-#define _velocidad_motor_avance   3 //pasos
+#define _motor_pin_1              5
+#define _motor_pin_2              6
+#define _motor_pin_3              9
+#define _motor_pin_4              10
+#define _velocidad_motor_avance    2//millis
 //Limpieza
-#define _pin_motor_limpieza       2
-#define _velocidad_motor_limpieza 100
+#define _pin_motor_limpieza       1
+#define _velocidad_motor_limpieza 255
 //Sensor ultrasonido
-#define _trigger_pin              14
-#define _echo_pin                 19
-#define _max_distan_us            30 //Distancia de maleza al suelo
+#define _trigger_pin              15
+#define _echo_pin                 14
+#define _max_distan_us            100 //Distancia maxima sensor us
 //Leds
-#define _led_maleza               5
-#define _led_punto_caliente       6
-#define _led_iluminacion          7
+#define _led_punto_caliente       17
+#define _led_maleza               16
+#define _led_iluminacion          0
 //Pantalla
 #define _screen_adr               0x27
 #define _screen_colms             16

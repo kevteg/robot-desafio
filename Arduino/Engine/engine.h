@@ -9,9 +9,9 @@
 
 /*Motor*/
 #include <motor.h>
-#include <motor_step.h>
 #include <AFMotor.h>
 #include <motor_adafruit.h>
+#include <MotorHS.h>
 
 /*Sensor ultrasonido*/
 #include <NewPing.h>
@@ -31,8 +31,9 @@
 #define max_distancia_ultrasonido 100  //Máxima distancia por defecto del ultrasonido en cm
 #define t_punto_caliente          10   //Tiempo de espera para punto caliente
 #define t_maleza                  10   //Tiempo por el que estará detenido
-#define t_limpieza                5   //Tiempo por el que estará limpiando
+#define t_limpieza                10   //Tiempo por el que estará limpiando
 #define t_espera_verificacion     2   //Tiempo de espera de verificación
+#define t_inicio                  5   //tiempo inicio
 #define tiempo_por_paso           0.5   //Tiempo de espera de verificación
 #define segundo                   1000 //Segundos en milisegundos
 #define numero_leds               3    //Número de leds del robot por defecto
@@ -43,6 +44,7 @@
 #define LED_ILUMINACION           2    //Posición uno de vector de leds será el led de punto caliente
 /*Estas variables se usan para enviar mensajes a la raspberry pi y para manejor interno*/
 //Revisar:
+#define INICIO                    'I'
 #define LIMPIAR                   'L'  //Limpiar en el protócolo
 #define AVANZAR                   'A'  //Avanzar en el protócolo
 #define DETENER                   'D'  //Detener en el protócolo
@@ -58,7 +60,9 @@
 #define velocidad_0                0   //Velocidad cero de avance
 #define texto_ini_pantalla         "Heimdal: "
 #define DEBUG                      true
-#define t_sin_escuchar             2
+#define t_sin_escuchar             3
+#define direccion_robot            1
+#define                       paso_motor_avanc 1
 namespace robot{
     class engine{
 		private:
@@ -77,17 +81,22 @@ namespace robot{
       int                       tiempo_detenido;                    //Tiempo por el cual estará detenido
       int                       velocidad_motor_avance;
       int                       velocidad_motor_limpieza;
-      bool                      avanzando;
-      motor**                   motores;                            //Motores del robot
+
+      motor_adafruit            motor_limpieza;
+      MotorHS                   motor_avance;
       screen                    pantalla;
       bool                      escuchando;
+      bool                      avanzando;
       int                       tiempo_no_escuchando;
+      int                       n_puntos_calientes;
+      int                       paso_motor_avance;
 
     protected:
       /*Protegidos para que la misma clase pueda tener métodos que retornen el tipo*/
       enum estado_r{
               e_detener,
               e_avanzar
+              //e_inicio
               };
       enum parametro_r{
               e_maleza,
